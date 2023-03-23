@@ -14,7 +14,7 @@ RUN python -m venv /opt/venv
 # https://stackoverflow.com/questions/48561981/activate-python-virtualenv-in-dockerfile
 ENV PATH="/opt/venv/bin:${PATH}"
 
-COPY ./db-service/requirements.txt ${WORKDIR}/requirements.txt
+COPY ./requirements.txt ${WORKDIR}/requirements.txt
 RUN ls ${WORKDIR}
 RUN pip install --upgrade pip
 RUN pip install -U -r requirements.txt
@@ -30,7 +30,7 @@ COPY --from=build_stage /opt/venv /opt/venv
 
 # Enable venv
 ENV PATH="/opt/venv/bin:$PATH"
-COPY ./db-service/ ${WORKDIR}
+COPY . ${WORKDIR}
 
 # Entry point of dev null used for debugging
-CMD ["python", "db-service/main.py"]
+CMD ["python", "main.py"]
