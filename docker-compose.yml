@@ -5,16 +5,19 @@ services:
     extends:
       file: front-end/docker-compose.yml
       service: nginx
+    depends_on:
+      - db
+      - data-service
 
   db:
     extends:
       file: db-service/docker-compose.yml
-      service: db
+      service: db_child
 
   data-service:
     extends:
       file: data-service/docker-compose.yml
-      service: db_service
+      service: db_service_child
     depends_on:
       - db
 

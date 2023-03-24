@@ -9,3 +9,5 @@ docker compose up -d
 docker compose logs
 
 curl 127.0.0.1:8080
+
+curl 127.0.0.1:4000
