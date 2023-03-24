@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  db:
+    extends:
+      file: db-service/docker-compose.yml
+      service: db
+
+  db_service:
+    extends:
+      file: data-service/docker-compose.yml
+      service: db_service
+    depends_on:
+      - db
+
+volumes:
+  db_volume:
+    external: true
+    name: db_volume
+
+networks:
+  cmsc495_network:
+    external: true
+    name: cmsc495_network
