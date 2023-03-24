@@ -20,6 +20,8 @@ services:
       service: db_service_child
     depends_on:
       - db
+    env_file:
+      - db-service/db_compose.env
 
 volumes:
   db_volume:

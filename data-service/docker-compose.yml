@@ -13,6 +13,8 @@ services:
       - cmsc495_network
     depends_on:
       - db
+    env_file:
+      - ../db-service/db_compose.env
 
 
 networks:
