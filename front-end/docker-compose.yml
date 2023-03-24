@@ -1,19 +1,15 @@
 version: '3.8'
 services:
-  db_service_child:
-    container_name: db_service_child
+  nginx:
     build:
       context: .
-      dockerfile: db_service.dockerfile
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    container_name: nginx
     ports:
-      - 8080:8080
-    volumes:
-      - .:/opt/code
+      - 4000:80
     networks:
       - cmsc495_network
-    depends_on:
-      - db
-
 
 networks:
   cmsc495_network:
