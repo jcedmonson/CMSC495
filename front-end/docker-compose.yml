@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    container_name: nginx
+    ports:
+      - 4000:80
+    networks:
+      - cmsc495_network
+
+networks:
+  cmsc495_network:
+    external: true
+    name: cmsc495_network

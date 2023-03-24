@@ -1,11 +1,17 @@
 version: '3.8'
 services:
+
+  front-end:
+    extends:
+      file: front-end/docker-compose.yml
+      service: nginx
+
   db:
     extends:
       file: db-service/docker-compose.yml
       service: db
 
-  db_service:
+  data-service:
     extends:
       file: data-service/docker-compose.yml
       service: db_service

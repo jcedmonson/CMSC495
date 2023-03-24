@@ -5,7 +5,7 @@ services:
     platform: linux/amd64
     container_name: db
     env_file:
-      - db_compose.env
+      - db-service/db_compose.env
     volumes:
       - db_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
     ports:
