@@ -33,6 +33,7 @@ engine = create_engine(
 #     session.add(some_object)
 #     session.add(some_other_object)
 
+from .models import Base, User, Item
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # With a session maker, we can make a session factory so that we don't have

@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 import uvicorn
 
+from . import User, SessionLocal, Item
+
 app = FastAPI()
 
 
 @app.get("/")
 async def root() -> dict:
+    with SessionLocal.begin() as session:
+        session.query("Hi")
+
     return {"message": "Project set up properly"}
 
 
