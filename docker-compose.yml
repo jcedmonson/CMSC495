@@ -5,6 +5,7 @@ services:
     extends:
       file: front-end/docker-compose.yml
       service: nginx
+    container_name: front_parent
     depends_on:
       - db
       - data-service
@@ -14,11 +15,14 @@ services:
       file: db-service/docker-compose.yml
       service: db_child
     env_file: db-service/db_compose.env
+    container_name: db_parent
+
 
   data-service:
     extends:
       file: data-service/docker-compose.yml
       service: db_service_child
+    container_name: data_parent
     depends_on:
       - db
 
