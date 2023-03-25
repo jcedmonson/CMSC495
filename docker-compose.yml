@@ -13,8 +13,7 @@ services:
     extends:
       file: db-service/docker-compose.yml
       service: db_child
-    env_file:
-      - db-service/db_compose.env
+    env_file: db-service/db_compose.env
 
   data-service:
     extends:
