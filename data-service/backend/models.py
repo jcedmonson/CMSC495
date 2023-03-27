@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, ForeignKeyConstraint, String
+from sqlalchemy import ForeignKey, ForeignKeyConstraint, PrimaryKeyConstraint, \
+    String
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from .database import Base
@@ -40,6 +41,12 @@ class UserFriends(Base):
     current_user: Mapped[int] = mapped_column(ForeignKey("user_profile.id"))
     friend_with: Mapped[int] = mapped_column(ForeignKey("user_profile.id"))
 
+
+    __table_args__ = (
+        PrimaryKeyConstraint("current_user", "friend_with"),
+    )
+
+
 class UserPost(Base):
     """
     Table represents the actual posts that a user has made
@@ -62,8 +69,11 @@ class UserPost(Base):
     post_date: Mapped[datetime]
     post: Mapped[str] = mapped_column(String(2048))
 
-    comments: Mapped[list["PostComment"]] = relationship(back_populates="comment_list")
-    reactions: Mapped[list["PostReaction"]] = relationship(back_populates="reaction_list")
+    comments: Mapped[list["PostComment"]] = relationship(
+        back_populates="comment_list")
+    reactions: Mapped[list["PostReaction"]] = relationship(
+        back_populates="reaction_list")
+
 
 class PostComment(Base):
     """
@@ -92,6 +102,7 @@ class PostComment(Base):
 
     comment_list: Mapped[UserPost] = relationship(back_populates="comments")
 
+
 class PostReaction(Base):
     """
     Table represents the reaction the user had made to a comment. There is
@@ -118,11 +129,9 @@ class PostReaction(Base):
     reaction_list: Mapped[UserPost] = relationship(back_populates="reactions")
 
     __table_args__ = (
-        ForeignKeyConstraint(
-            ["post_id", "user_id"],
-            ["post_reaction.post_id", "post_reaction.user_id"]
-        ),
+        PrimaryKeyConstraint("post_id", "user_id"),
     )
+
 
 class Reactions(Base):
     """
