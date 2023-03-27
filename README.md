@@ -9,16 +9,16 @@ Team J³ decided to create a web application. The web application is internally 
 ### Software:
 
 #### System:
-- Docker v23.0.1
-- Docker Compose v3.8
-- NPM v9.6.0
-- Node v19.7.0
-- Python v3.11
+- docker v23.0.1
+- docker compose v3.8
+- npm v9.6.0
+- node v19.7.0
+- python v3.11
 
 
 #### Front-end (JS):
-- vue.js v3
-- vuetify.js v3 
+- vue.js v3.2.47
+- vuetify.js v3.1.11
 - pinia v2.0.33
 - axios v1.3.4
 - vite v4.2.1
@@ -44,7 +44,7 @@ Team J³ decided to create a web application. The web application is internally 
 
 ### Runtime System Specifications:
 #### Software:
-- Docker v23.0.1
+- docker v23.0.1
 
 #### Hardware (ESTIMATED):
 > Running out of a Linode VPS at this time
