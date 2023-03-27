@@ -2,7 +2,7 @@ from sqlalchemy import ForeignKey
 
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
-from . import Base
+from database import Base
 
 
 class User(Base):

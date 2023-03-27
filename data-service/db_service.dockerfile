@@ -1,6 +1,6 @@
 # https://docs.docker.com/develop/develop-images/multistage-build/
 # Setup build sectio
-FROM  python:3.10.10-bullseye as build_stage
+FROM  python:3.11-bullseye as build_stage
 
 # Do not buffer stdout/stderr just dump it asap
 ENV PYTHONUNBUFFERED 1
@@ -21,7 +21,7 @@ RUN pip install -U -r requirements.txt
 
 
 # Run build section
-FROM  python:3.10.10-bullseye as run_stage
+FROM  python:3.11-bullseye as run_stage
 RUN echo 'alias ll="ls -lart --color=auto"' >> ~/.bashrc
 ARG WORKDIR=/opt/code
 
