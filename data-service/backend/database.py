@@ -8,9 +8,9 @@ from sqlalchemy.orm import sessionmaker
 # The connection is actually made with a connection object `engine.connect()`
 # It is often preferred to use `engine.begin()` as a succinct way to commit
 # at the end
-engine = create_engine(
-    f"postgresql://{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}@{getenv('HOST')}/{getenv('POSTGRES_DB')}",
-    echo=True)
+db_url = f"postgresql://{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}@{getenv('HOST')}/{getenv('POSTGRES_DB')}"
+engine = create_engine(db_url, echo=True)
+print(db_url)
 
 # Sessions are the usual way to interact with the database. They will fetch a
 # connection when it is needed making it efficient. THe usual way
