@@ -7,7 +7,8 @@
 // Components
 import App from "./App.vue";
 import router from "@/router";
-import { userData } from "@/store/user";
+import { userStore } from "@/store/user";
+import { tokenCheck } from "@/scripts/user";
 
 // Composables
 import { createApp } from "vue";
@@ -19,17 +20,19 @@ const app = createApp(App);
 
 registerPlugins(app);
 
-const user = userData();
+const user = userStore();
 
 router.beforeEach((to, from, next) => {
-  console.log(user.loggedIn);
+  const token = sessionStorage.getItem("city_park_token");
+
   if (user.loggedIn) {
     document.title = to.name;
     next();
   } else {
+    // if the store does not annotate the user as logged in,
     if (to.path != "/login") {
-      document.title = to.name;
-      router.push("/login");
+      // check token
+      tokenCheck(token)
     } else {
       document.title = to.name;
       next();

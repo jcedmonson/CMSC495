@@ -15,7 +15,6 @@ import LoginCard from "@/components/LoginCard.vue";
 <style scoped>
 
 .loginBackground{
-  background: rgb(1,130,255);
   background: radial-gradient(circle, #0182ff 0%, rgba(38,50,56,1) 100%);
 }
 
