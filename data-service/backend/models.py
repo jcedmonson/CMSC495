@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, ForeignKeyConstraint, PrimaryKeyConstraint, \
-    String
+from sqlalchemy import ForeignKey, PrimaryKeyConstraint, String
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from .database import Base

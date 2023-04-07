@@ -1,5 +1,17 @@
 from pydantic import BaseModel
 
+class UserProfile(BaseModel):
+    id: int
+    user_name: str
+
+class UserProfileAll(UserProfile):
+    account_status: bool
+    account_private: bool
+
+class PostComment(UserProfile):
+    id: int
+    post_id: int
+    user_id: int
 
 class ItemBase(BaseModel):
     title: str
