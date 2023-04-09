@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 import uvicorn
 
 import backend
-from backend import pydantic_models, crud
+from backend import pydantic_models as pm
+from backend import crud
 
 # Create all the tables if they need to be created
 backend.models.Base.metadata.create_all(bind=backend.engine)
@@ -19,17 +20,35 @@ def get_db():
     finally:
         db.close()
 
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
 
 @app.get("/")
 async def root() -> dict:
     return {"message": "Project set up properly"}
 
 
-@app.post("/users/")
-def create_user(user: pydantic_models.UserProfile,
-                db: Session = Depends(get_db)) -> pydantic_models.UserCreate:
+@app.post("/login")
+async def login_user(user: pm.UserBase, db: Session = Depends(get_db)) -> dict:
+    # res = crud.auth_user(db, user)
+    print(user)
+    # print(f"result is: {res}")
+    return {"Worky": "Yeah, it worky"}
 
-    return crud.create_user(db=db, user=user)
+
+
+
+# @app.post("/users/")
+# def create_user(user: pm.UserProfile,
+#                 db: Session = Depends(get_db)) -> pm.UserCreate:
+#
+#     return crud.create_user(db=db, user=user)
 
 
 # @app.get("/users/", response_model=list[backend.schemas.User])
