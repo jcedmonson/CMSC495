@@ -40,9 +40,12 @@ class UserProfile(Base):
                          session: AsyncSession,
                          user_name: str,
                          password: str
-                         ) -> UserProfile:
+                         ) -> None:
         stmt = select(cls).where(cls.user_name == user_name)
-        return await session.scalar(stmt.order_by(cls.id))
+        result = await session.execute(stmt)
+        user = result.scalar_one_or_none()
+        if user is None:
+            return None
 
 
 class UserBase(BaseModel):
@@ -51,6 +54,9 @@ class UserBase(BaseModel):
 
 class UserLogin(UserBase):
     password: str
+
+    class Config:
+        orm_mode = True
 
 
 class UserCreate(UserLogin):

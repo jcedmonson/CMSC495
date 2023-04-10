@@ -11,11 +11,13 @@ from data_service.app_settings import Settings
 
 logger = logging.getLogger("app.db")
 
+logging.getLogger("sqlalchemy").setLevel(logging.ERROR)
+
 
 @dataclass
 class Database:
     engine: AsyncEngine = field(init=False)
-    session: async_sessionmaker = field(init=False)
+    session: async_sessionmaker[AsyncSession] = field(init=False)
     settings: Settings = field(init=False)
 
     def __post_init__(self):
@@ -23,7 +25,7 @@ class Database:
 
         self.engine = create_async_engine(
             self.settings.dns,
-            echo=True,
+            echo=False,
             connect_args={
                 "server_settings": {
                     "application_name": self.settings.app_name
@@ -44,6 +46,8 @@ database = Database()
 
 async def get_session() -> AsyncSession:
     try:
-        yield database.session
+        async with database.session() as session:
+            yield session
+
     except SQLAlchemyError as error:
         logger.exception(error)

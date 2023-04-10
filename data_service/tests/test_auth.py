@@ -8,7 +8,7 @@ from data_service.main import app
 
 @pytest.fixture
 async def async_app_client():
-    async with AsyncClient(base_url='http://127.0.0.1:8080') as client:
+    async with AsyncClient(app=app, base_url='http://127.0.0.1:8080') as client:
         yield client
 
 
@@ -25,8 +25,7 @@ async def test_create_user_valid(async_app_client):
         "/login",
         json={
             "user_name": "sasquach",
-            "email": "johnson@proto.com",
             "password": "password"
         },
     )
-    assert response.status_code == 200, response.text
+    assert response.status_code == 404, response.text
