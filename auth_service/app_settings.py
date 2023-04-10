@@ -2,7 +2,7 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
-    app_name: str = "City Park Auth Service"
+    app_name: str = "City Park"
     version: str = "0.0.1"
     postgres_db: str
     postgres_user: str
@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     drop_tables: bool = False
 
     class Config:
-        env_file = "../db-service/data_db.env"
+        env_file = "../db-service/auth_db.env"
         env_file_encoding = "UTF-8"
 
     @property

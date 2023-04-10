@@ -21,7 +21,16 @@ services:
     depends_on:
       - db
     env_file:
-      - db-service/db_compose.env
+      - db-service/data_db.env
+
+  auth-service:
+    extends:
+      file: auth_service/docker-compose.yml
+      service: auth_service
+    depends_on:
+      - db
+    env_file:
+      - db-service/auth_db.env
 
 volumes:
   db_volume:
