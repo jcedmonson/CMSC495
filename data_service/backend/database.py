@@ -36,17 +36,27 @@ NOTES:
 # Represent the metadata from ORM mapped class
 """
 from os import getenv
+import logging
+from typing import AsyncIterator
 
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
 
-# Lazy initialization; does not actually make a connection to the db
-# The connection is actually made with a connection object `engine.connect()`
-# It is often preferred to use `engine.begin()` as a succinct way to commit
-# at the end
+logger = logging.getLogger(__name__)
+
 db_url = f"postgresql+asyncpg://{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}@{getenv('HOST')}/{getenv('POSTGRES_DB')}"
-engine = create_engine(db_url, echo=True)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+async_engine = create_async_engine(
+    db_url,
+    echo=True,
+)
+
+async_session = async_sessionmaker(async_engine, expire_on_commit=False)
+
+
+async def get_session() -> AsyncIterator[async_sessionmaker]:
+    try:
+        yield async_session
+    except SQLAlchemyError as error:
+        logger.exception(error)

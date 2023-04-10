@@ -3,3 +3,6 @@ uvicorn==0.21.1
 SQLAlchemy[asyncio]
 pydantic[email]
 asyncpg
+pytest
+pytest-asyncio
+httpx

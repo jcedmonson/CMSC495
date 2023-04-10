@@ -16,7 +16,7 @@ services:
 
   data-service:
     extends:
-      file: data-service/docker-compose.yml
+      file: data_service/docker-compose.yml
       service: db_service_child
     depends_on:
       - db

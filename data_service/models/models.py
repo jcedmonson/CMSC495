@@ -3,33 +3,7 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, PrimaryKeyConstraint, String
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
-from .database import Base
-
-
-class UserProfile(Base):
-    """
-    Table represents the users public facing information
-
-    Attributes
-    ----------
-    id: int
-        Unique ID automatically given to the user
-    user_name: str
-        User chosen name
-    account_status: bool
-        Indicate if the user is "active". A true value indicates that the user
-        is in fact "active", while a false indicates that the user is
-        "inactive".
-    account_private: bool
-        Bool indicates if the account is private (True) requiring guest
-        user to be friends with the user
-    """
-    __tablename__ = "user_profile"
-
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_name: Mapped[str] = mapped_column(String(30))
-    account_status: Mapped[bool] = mapped_column(default=False)
-    account_private: Mapped[bool] = mapped_column(default=False)
+from .base import Base
 
 
 class UserFriends(Base):
@@ -39,7 +13,6 @@ class UserFriends(Base):
     __tablename__ = "user_friend"
     current_user: Mapped[int] = mapped_column(ForeignKey("user_profile.id"))
     friend_with: Mapped[int] = mapped_column(ForeignKey("user_profile.id"))
-
 
     __table_args__ = (
         PrimaryKeyConstraint("current_user", "friend_with"),
