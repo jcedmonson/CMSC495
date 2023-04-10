@@ -42,9 +42,9 @@ class UserPost(Base):
     post: Mapped[str] = mapped_column(String(2048))
 
     comments: Mapped[list["PostComment"]] = relationship(
-        back_populates="comment_list")
+        back_populates="comment_list", cascade="all, delete-orphan")
     reactions: Mapped[list["PostReaction"]] = relationship(
-        back_populates="reaction_list")
+        back_populates="reaction_list", cascade="all, delete-orphan")
 
 
 class PostComment(Base):
@@ -72,7 +72,8 @@ class PostComment(Base):
     comment_date: Mapped[datetime]
     comment: Mapped[str] = mapped_column(String(1024))
 
-    comment_list: Mapped[UserPost] = relationship(back_populates="comments")
+    comment_list: Mapped[UserPost] = relationship(back_populates="comments",
+                                                  cascade="all, delete-orphan")
 
 
 class PostReaction(Base):
@@ -98,7 +99,8 @@ class PostReaction(Base):
     reaction_date: Mapped[datetime]
     reaction_id: Mapped[int]
 
-    reaction_list: Mapped[UserPost] = relationship(back_populates="reactions")
+    reaction_list: Mapped[UserPost] = relationship(back_populates="reactions",
+                                                   cascade="all, delete-orphan")
 
     __table_args__ = (
         PrimaryKeyConstraint("post_id", "user_id"),

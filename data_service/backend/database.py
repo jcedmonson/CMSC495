@@ -38,8 +38,12 @@ class Database:
                                           autocommit=False,
                                           future=True)
 
-    async def get_session(self) -> AsyncSession:
-        try:
-            yield self.session
-        except SQLAlchemyError as error:
-            logger.exception(error)
+
+database = Database()
+
+
+async def get_session() -> AsyncSession:
+    try:
+        yield database.session
+    except SQLAlchemyError as error:
+        logger.exception(error)

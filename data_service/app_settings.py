@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     pgdata: str
     host: str
 
+    drop_tables: bool = False
+
     class Config:
         env_file = "../db-service/db_compose.env"
         env_file_encoding = "UTF-8"
