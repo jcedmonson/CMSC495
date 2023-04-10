@@ -22,20 +22,23 @@ LOGGING_CONFIG = {
             "level": "WARNING",
             "propagate": True
         },
-        "__main__": {
+
+        "app": {
+            "handlers": ["default"],
+            "level": "INFO",
+            "propagate": True
+        },
+
+        "app.auth_routes": {
             "handlers": ["default"],
             "level": "WARNING",
             "propagate": True
         },
-        "auth_routes": {
+
+        "app.db": {
             "handlers": ["default"],
-            "level": "WARNING",
+            "level": "INFO",
             "propagate": True
         },
-        "pytest": {
-            "handlers": ["default"],
-            "level": "DEBUG",
-            "propagate": True
-        }
     }
 }

@@ -1,5 +1,8 @@
-from sqlalchemy import String
+from __future__ import annotations
+
+from sqlalchemy import String, select
 from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, EmailStr
 
 from .base import Base
@@ -32,13 +35,26 @@ class UserProfile(Base):
     account_status: Mapped[bool] = mapped_column(default=False)
     account_private: Mapped[bool] = mapped_column(default=False)
 
+    @classmethod
+    async def login_user(cls,
+                         session: AsyncSession,
+                         user_name: str,
+                         password: str
+                         ) -> UserProfile:
+        stmt = select(cls).where(cls.user_name == user_name)
+        return await session.scalar(stmt.order_by(cls.id))
+
 
 class UserBase(BaseModel):
-    email: EmailStr
+    user_name: str
 
 
 class UserLogin(UserBase):
     password: str
+
+
+class UserCreate(UserLogin):
+    email: EmailStr
 
 
 class UserAuthed(BaseModel):

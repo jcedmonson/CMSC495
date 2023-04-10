@@ -12,6 +12,7 @@ router = APIRouter(prefix="/login")
 @router.post("")
 async def login(data: UserLogin,
                 use_case: CreateUser = Depends(CreateUser)) -> str:
-    print(data)
+
+    await use_case.execute(data)
 
     return "Hi"

@@ -2,6 +2,7 @@ fastapi==0.95.0
 uvicorn==0.21.1
 SQLAlchemy[asyncio]
 pydantic[email]
+pydantic[dotenv]
 asyncpg
 pytest
 pytest-asyncio

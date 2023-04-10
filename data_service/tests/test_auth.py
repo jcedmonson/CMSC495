@@ -12,10 +12,21 @@ async def async_app_client():
         yield client
 
 
-@pytest.mark.asyncio
 async def test_create_user_invalid(async_app_client):
     response = await async_app_client.post(
         "/login",
         json={},
     )
     assert response.status_code == 422, response.text
+
+
+async def test_create_user_valid(async_app_client):
+    response = await async_app_client.post(
+        "/login",
+        json={
+            "user_name": "sasquach",
+            "email": "johnson@proto.com",
+            "password": "password"
+        },
+    )
+    assert response.status_code == 200, response.text
