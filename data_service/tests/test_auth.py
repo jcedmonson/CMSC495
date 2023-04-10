@@ -1,5 +1,3 @@
-import logging
-
 from httpx import AsyncClient
 import pytest
 
