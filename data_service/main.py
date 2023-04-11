@@ -2,11 +2,11 @@ import logging.config
 
 from fastapi import FastAPI
 
-from data_service.logging_config import LOGGING_CONFIG
-from data_service.backend.main import routers
-from data_service.app_settings import Settings
-from data_service.models.base import Base
-from data_service.backend.database import database
+from data_app.logging_config import LOGGING_CONFIG
+from data_app.backend.main import routers
+from data_app.app_settings import Settings
+from data_app.models.base import Base
+from data_app.backend.database import database
 
 logging.config.dictConfig(LOGGING_CONFIG)
 log = logging.getLogger("app")
@@ -14,14 +14,14 @@ log = logging.getLogger("app")
 settings = Settings()
 
 
-app = FastAPI(
+data_app = FastAPI(
     title=settings.app_name,
     version=settings.version
 )
-app.include_router(routers)
+data_app.include_router(routers)
 
 
-@app.on_event("startup")
+@data_app.on_event("startup")
 async def startup() -> None:
     async with database.engine.begin() as conn:
         if settings.drop_tables:
@@ -31,7 +31,7 @@ async def startup() -> None:
     log.info("Database Initialized...")
 
 
-@app.get("/")
+@data_app.get("/")
 async def root() -> dict:
     return {"message": "Project set up properly"}
 
@@ -39,5 +39,5 @@ async def root() -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8080,
+    uvicorn.run("main:data_app", host="0.0.0.0", port=8080,
                 log_level="debug", reload=True)

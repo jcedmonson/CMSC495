@@ -1,12 +1,12 @@
 from httpx import AsyncClient
 import pytest
 
-from data_service.main import app
+from auth_service.main import auth_app
 
 
 @pytest.fixture
 async def async_app_client():
-    async with AsyncClient(app=app, base_url='http://127.0.0.1:8080') as client:
+    async with AsyncClient(app=auth_app, base_url='http://127.0.0.1:8080') as client:
         yield client
 
 

@@ -2,8 +2,8 @@ import logging
 
 from fastapi import Depends, HTTPException, APIRouter
 
-from data_service.models.user_profile import UserLogin, UserProfile
-from data_service.backend.database import get_session
+from data_app.models.user_profile import UserLogin, UserProfile
+from data_app.backend.database import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 log = logging.getLogger("auth_routes")

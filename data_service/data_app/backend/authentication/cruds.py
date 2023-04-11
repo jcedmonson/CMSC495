@@ -1,9 +1,6 @@
-from typing import Annotated, AsyncIterator
+from fastapi import HTTPException
 
-from fastapi import Depends, HTTPException
-from sqlalchemy.ext.asyncio import async_sessionmaker
-
-from data_service.models.user_profile import UserLogin, UserProfile
+from data_service.data_app.models.user_profile import UserLogin, UserProfile
 
 # AsyncSession = Annotated[async_sessionmaker, Depends(get_session)]
 

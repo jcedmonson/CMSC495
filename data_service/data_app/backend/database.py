@@ -1,4 +1,3 @@
-from os import getenv
 import logging
 from dataclasses import dataclass, field
 
@@ -7,7 +6,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from sqlalchemy.exc import SQLAlchemyError
-from data_service.app_settings import Settings
+from data_app.app_settings import Settings
 
 logger = logging.getLogger("app.db")
 
