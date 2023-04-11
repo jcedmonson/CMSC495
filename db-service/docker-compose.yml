@@ -9,7 +9,7 @@ services:
     volumes:
       - db_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
     ports:
-      - 5432:5432
+      - 54320:5432
     networks:
       - cmsc495_network
 
@@ -20,7 +20,7 @@ services:
     volumes:
       - db_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
     ports:
-      - 5432:5432
+      - 54321:5432
     networks:
       - cmsc495_network
 
