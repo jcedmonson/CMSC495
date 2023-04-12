@@ -17,6 +17,8 @@ services:
     image: postgres
     platform: linux/amd64
     container_name: auth_db
+    env_file:
+      - auth_db.env
     volumes:
       - db_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
     ports:

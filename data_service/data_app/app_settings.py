@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     postgres_password: str
     pgdata: str
     host: str
+    port: int = 5432
 
     drop_tables: bool = False
 
@@ -20,7 +21,7 @@ class Settings(BaseSettings):
     def dns(self) -> str:
         return (f"postgresql+asyncpg://"
                 f"{self.postgres_user}:{self.postgres_password}"
-                f"@{self.host}/{self.postgres_db}")
+                f"@{self.host}:{self.port}/{self.postgres_db}")
 
     @property
     def log_settings(self) -> dict:
