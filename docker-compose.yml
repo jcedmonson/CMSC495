@@ -34,9 +34,13 @@ services:
       - auth_db
 
 volumes:
-  db_volume:
+  auth_volume:
     external: true
-    name: db_volume
+    name: auth_volume
+
+  data_volume:
+    external: true
+    name: data_volume
 
 networks:
   cmsc495_network:
