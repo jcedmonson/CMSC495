@@ -1,11 +1,5 @@
 <template>
   <v-container class="" fluid>
-    <v-app-bar title="CityPark">
-      <template v-slot:prepend>
-        <v-app-bar-nav-icon></v-app-bar-nav-icon>
-      </template>
-      <v-avatar>{{ user.first_name[0]+user.last_name[0] }}</v-avatar>
-    </v-app-bar>
     <v-container>
       <v-row>
         <v-col  xs="12" sm="4" md="4" lg="4" xl="4">
@@ -19,6 +13,7 @@
             :key="idx"
             :title="'@'+post.username"
             :content="post.content"
+            :id="post.postId"
           ></home-posts>
         </v-col>
       </v-row>
@@ -27,6 +22,10 @@
 </template>
 
 <script setup>
+/**
+ * @file Bootstraps Vuetify and other plugins then mounts the App
+ */
+
 import { userStore } from "@/store/user";
 import { postStore } from "@/store/posts";
 

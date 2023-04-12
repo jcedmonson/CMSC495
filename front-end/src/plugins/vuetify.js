@@ -1,7 +1,7 @@
 /**
- * plugins/vuetify.js
- *
- * Framework documentation: https://vuetifyjs.com`
+ * @module vuetify
+ * @description Creates vuetify, exports the plugin.
+ * @author Jacob Edmonson
  */
 
 // Styles

@@ -1,7 +1,7 @@
 /**
- * plugins/index.js
- *
- * Automatically included in `./src/main.js`
+ * @module plugins
+ * @description loads the vuetify, pinia, and vue router into the vue appliation.
+ * @author Jacob Edmonson
  */
 
 // Plugins

@@ -88,6 +88,7 @@ const posts = [
     content:
       "Foot strong discussion modern according government. Decide reason per friend some impact whether.Later lead stand. Cause learn fact easy computer person increase remain. Role your miss kind lay.",
     reactions: [],
+    comments: []
   },
   {
     userId: 0,
@@ -96,6 +97,7 @@ const posts = [
     content:
       "Ask movement share real article. Inside three include employee.Thing hotel available people grow entire finish. Idea financial quickly despite once. Room protect down.",
     reactions: [],
+    comments: []
   },
   {
     userId: 5,
@@ -104,6 +106,7 @@ const posts = [
     content:
       "Expect prepare tonight current age while. Fast writer per sense. Book may site increase during.Similar industry sign sea study product. Ok civil newspaper air mission government day.",
     reactions: [],
+    comments: []
   },
   {
     userId: 5,
@@ -112,6 +115,7 @@ const posts = [
     content:
       "Do country design really between. Rate risk trial shoulder.Something office life move foreign difference. Official food American box will policy begin. Father fast sell road follow attorney.",
     reactions: [],
+    comments: []
   },
   {
     userId: 5,
@@ -120,6 +124,7 @@ const posts = [
     content:
       "Others family fire glass. Sea and they already.Act thousand central. Together a safe among seem. Police push show daughter.Night red pass thought want. Almost politics that hotel up show different.",
     reactions: [],
+    comments: []
   },
   {
     userId: 0,
@@ -128,6 +133,7 @@ const posts = [
     content:
       "Relate order old nor will drive. Available there pressure write fish. Growth southern agree born box reach.Small like theory become foot. Question pull nor show food car always.",
     reactions: [],
+    comments: []
   },
   {
     userId: 3,
@@ -136,6 +142,7 @@ const posts = [
     content:
       "Throughout break property environment.Win activity debate player. Trade feeling much let role. Situation run artist including character hour.Behind hour control. Water according run sure son.",
     reactions: [],
+    comments: []
   },
   {
     userId: 0,
@@ -144,6 +151,7 @@ const posts = [
     content:
       "Sometimes little investment instead result across from. Drive go off true major less inside themselves. Stop against TV adult task statement cold dog.",
     reactions: [],
+    comments: []
   },
   {
     userId: 2,
@@ -152,6 +160,7 @@ const posts = [
     content:
       "Adult above they social visit simple. East consider knowledge town. Majority certain goal some politics edge look.We question another total serve. Expect training quickly many.",
     reactions: [],
+    comments: []
   },
   {
     userId: 4,
@@ -160,6 +169,7 @@ const posts = [
     content:
       "Involve left kind daughter avoid. Southern such rock customer. Know than control however reality class.Allow interview not attention. Standard trouble house hold whole daughter Democrat.",
     reactions: [],
+    comments: []
   },
 ];
 
@@ -328,6 +338,18 @@ app.get("/posts", (req, res) => {
   }
 });
 
+
+app.get("/posts/:id", (req, res) => {
+  if (validToken(req)) {
+    const post = posts.filter((p) => { return p.postId == req.params.id})
+    console.log(post)
+    post.length == 1 ? res.status(200).json(post[0]) :
+    res.sendStatus(404)
+  } else {
+    res.sendStatus(403);
+  }
+});
+
 app.post("/posts", (req, res) => {
   if (validToken(req)) {
     const post = req.body;
@@ -361,6 +383,28 @@ app.post("/posts/:id/reaction", (req, res) => {
   // add reaction
   if (user.length == 1 && post.length == 1) {
     post[0].reactions.push(reaction);
+    res.sendStatus(201);
+  } else {
+    res.sendStatus(403);
+  }
+});
+
+
+app.post("/posts/:id/comment", (req, res) => {
+  const comment = req.body;
+  const id = req.params.id;
+
+  // get user from token
+  const user = users.filter(
+    (u) => u.token == req.headers.authorization.split(" ")[1]
+  );
+
+  // get post
+  const post = posts.filter((p) => p.postId == id);
+
+  // add reaction
+  if (user.length == 1 && post.length == 1) {
+    post[0].reactions.push(comment);
     res.sendStatus(201);
   } else {
     res.sendStatus(403);

@@ -1,7 +1,8 @@
 /**
- * main.js
- *
- * Bootstraps Vuetify and other plugins then mounts the App`
+ * @module main
+ * @description The entrypoint to the web application, installs plugins,
+ * and handles token checking per route.
+ * @author Jacob Edmonson
  */
 
 // Components

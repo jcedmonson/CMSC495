@@ -1,0 +1,15 @@
+{
+  "source":{
+    "include": ["src"],
+    "excludePattern": "(node_modules/|front-end-docs)"
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true
+  },
+  "opts": {
+    "recursive": true,
+    "destination": "./front-end-docs/"
+  }
+}

@@ -1,4 +1,9 @@
-// Composables
+/**
+ * @module router
+ * @description Creates the router and defines the web apps routes.
+ * @author Jacob Edmonson
+ */
+
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
@@ -18,6 +23,11 @@ const routes = [
         path: '/login',
         name: 'Login',
         component: () => import('@/views/Login.vue')
+      },
+      {
+        path: '/posts/:id',
+        name: 'Posts',
+        component: () => import('@/views/Post.vue')
       }
     ],
   },
