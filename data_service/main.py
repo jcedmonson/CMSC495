@@ -2,17 +2,14 @@ import logging.config
 
 from fastapi import FastAPI
 
-from data_app.logging_config import LOGGING_CONFIG
 from data_app.backend.main import routers
 from data_app.app_settings import Settings
 from data_app.models.base import Base
 from data_app.backend.database import database
 
-logging.config.dictConfig(LOGGING_CONFIG)
-log = logging.getLogger("app")
-
 settings = Settings()
-
+logging.config.dictConfig(settings.log_settings)
+log = logging.getLogger("app")
 
 data_app = FastAPI(
     title=settings.app_name,
