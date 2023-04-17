@@ -3,7 +3,6 @@ import pytest
 
 from auth_app.main import auth_app
 
-
 @pytest.fixture
 async def async_app_client():
     async with AsyncClient(app=auth_app, base_url='http://127.0.0.1:8888') as client:

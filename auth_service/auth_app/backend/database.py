@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from sqlalchemy.exc import SQLAlchemyError
-from auth_app.app_settings import Settings
+from app_settings import Settings
 
 logger = logging.getLogger("app.db")
 logging.getLogger("sqlalchemy").setLevel(logging.ERROR)

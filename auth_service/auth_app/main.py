@@ -2,10 +2,13 @@ import logging.config
 
 from fastapi import FastAPI
 
-from auth_app.backend.main import routers
-from auth_app.app_settings import Settings
-from auth_app.models.base import Base
-from auth_app.backend.database import database
+from backend.main import routers
+from app_settings import Settings
+from models.base import Base
+from backend.database import database
+
+import sys
+print(sys.path)
 
 settings = Settings()
 logging.config.dictConfig(settings.log_settings)
