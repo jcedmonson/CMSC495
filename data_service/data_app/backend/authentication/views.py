@@ -7,7 +7,7 @@ from data_app.backend.database import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 log = logging.getLogger("auth_routes")
-router = APIRouter(prefix="/login")
+# router = APIRouter(prefix="/login")
 
 
 # @router.post("")

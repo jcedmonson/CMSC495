@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 import pytest
 
-from data_service.main import data_app
+from data_service.data_app.main import data_app
 
 
 @pytest.fixture
