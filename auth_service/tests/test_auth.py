@@ -64,6 +64,6 @@ async def test_user_valid_creation(async_app_client: AsyncClient) -> None:
             "email": "johnson@johnson.com"
         },
     )
-    assert response.status_code == 200, response.text
+    assert response.status_code == 203, response.text
 
 

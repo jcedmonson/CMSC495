@@ -9,6 +9,7 @@ from backend.database import database, get_session
 from models.user_account import UserAccount, UserCreate, UserLogin
 
 settings = Settings()
+
 logging.config.dictConfig(settings.log_settings)
 log = logging.getLogger("app")
 
@@ -35,7 +36,7 @@ async def root() -> dict:
 
 @auth_app.post("/login")
 async def login(data: UserLogin,
-                session: AsyncSession = Depends(get_session)) -> str:
+                session: AsyncSession = Depends(get_session)) -> None:
     result = await UserAccount.login_user(session,
                                           data.user_name,
                                           data.password)
@@ -43,15 +44,15 @@ async def login(data: UserLogin,
     if result is None:
         raise HTTPException(status_code=404, detail="User not found")
 
+
 @auth_app.post("/user")
 async def login(data: UserCreate,
-                session: AsyncSession = Depends(get_session)) -> str:
-    result = await UserAccount.login_user(session,
-                                          data.user_name,
-                                          data.password)
+                session: AsyncSession = Depends(get_session)) -> None:
 
-    if result is None:
-        raise HTTPException(status_code=404, detail="Endpoint hit")
+    result = await UserAccount.create_user(session, data)
+
+    if isinstance(result, str):
+        raise HTTPException(status_code=404, detail=result)
 
 
 if __name__ == "__main__":
