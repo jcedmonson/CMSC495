@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app_settings import Settings
 from models.base import Base
 from backend.database import database, get_session
-from models.user_account import UserAccount, UserCreate, UserLogin
+from models.user_account import UserAccount, UserCreate, UserLogin, UserAuthed
 
 settings = Settings()
 
@@ -35,24 +35,27 @@ async def root() -> dict:
 
 
 @auth_app.post("/login")
-async def login(data: UserLogin,
-                session: AsyncSession = Depends(get_session)) -> None:
-    result = await UserAccount.login_user(session,
-                                          data.user_name,
-                                          data.password)
+async def login(user: UserLogin,
+                session: AsyncSession = Depends(get_session)) -> UserAuthed:
+    try:
+        result = await UserAccount.login_user(session, settings, user)
+    except:
+        raise
 
-    if result is None:
-        raise HTTPException(status_code=404, detail="User not found")
+    return result
 
 
-@auth_app.post("/user")
-async def login(data: UserCreate,
-                session: AsyncSession = Depends(get_session)) -> None:
+@auth_app.post("/user", status_code=201)
+async def user_create(user: UserCreate,
+                      session: AsyncSession = Depends(get_session)) -> UserAuthed:
+    """Create a new user. If there is an error, a raise is set"""
 
-    result = await UserAccount.create_user(session, data)
+    result = await UserAccount.create_user(session, settings, user)
 
     if isinstance(result, str):
         raise HTTPException(status_code=404, detail=result)
+
+    return result
 
 
 if __name__ == "__main__":
