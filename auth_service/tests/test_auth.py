@@ -35,13 +35,35 @@ async def test_login_user_not_found(async_app_client):
     )
     assert response.status_code == 404, response.text
 
-async def test_create_user_valid(async_app_client: AsyncClient) -> None:
+async def test_login_user_invalid_req(async_app_client: AsyncClient) -> None:
     response = await async_app_client.post(
         "/login",
         json={
-            "user_name": "sasquach",
-            "password": "password"
+            "user_name": "sasquach"
         },
     )
-    assert response.status_code == 401, response.text
+    assert response.status_code == 422, response.text
+
+async def test_user_invalid_req(async_app_client: AsyncClient) -> None:
+    response = await async_app_client.post(
+        "/user",
+        json={
+            "user_name": "sasquach"
+        },
+    )
+    assert response.status_code == 422, response.text
+
+async def test_user_valid_creation(async_app_client: AsyncClient) -> None:
+    response = await async_app_client.post(
+        "/user",
+        json={
+            "user_name": "sasquach",
+            "first_name": "johnson",
+            "last_name": "also johnson",
+            "password": "password",
+            "email": "johnson@johnson.com"
+        },
+    )
+    assert response.status_code == 200, response.text
+
 

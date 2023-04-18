@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app_settings import Settings
 from models.base import Base
 from backend.database import database, get_session
-from models.user_account import UserAccount, UserLogin
+from models.user_account import UserAccount, UserCreate, UserLogin
 
 settings = Settings()
 logging.config.dictConfig(settings.log_settings)
@@ -42,6 +42,16 @@ async def login(data: UserLogin,
 
     if result is None:
         raise HTTPException(status_code=404, detail="User not found")
+
+@auth_app.post("/user")
+async def login(data: UserCreate,
+                session: AsyncSession = Depends(get_session)) -> str:
+    result = await UserAccount.login_user(session,
+                                          data.user_name,
+                                          data.password)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Endpoint hit")
 
 
 if __name__ == "__main__":

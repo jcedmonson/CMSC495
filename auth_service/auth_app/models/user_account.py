@@ -52,6 +52,8 @@ class UserLogin(UserBase):
 
 
 class UserCreate(UserLogin):
+    first_name: str
+    last_name: str
     email: EmailStr
 
 
