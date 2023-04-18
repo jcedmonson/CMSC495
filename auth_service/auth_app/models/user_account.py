@@ -45,7 +45,7 @@ class UserBase(BaseModel):
 
 
 class UserLogin(UserBase):
-    password_hash: str
+    password: str
 
     class Config:
         orm_mode = True

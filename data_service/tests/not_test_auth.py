@@ -26,4 +26,4 @@ async def test_create_user_valid(async_app_client):
             "password": "password"
         },
     )
-    assert response.status_code == 404, response.text
+    assert response.status_code == 401, response.text

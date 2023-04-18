@@ -1,5 +1,5 @@
-from httpx import AsyncClient
 import pytest
+from httpx import AsyncClient
 
 from auth_app.main import auth_app
 
@@ -9,13 +9,15 @@ async def async_app_client():
         yield client
 
 
-async def test_create_user_invalid(async_app_client):
+async def test_login_user_not_found(async_app_client):
     response = await async_app_client.post(
         "/login",
-        json={},
+        json={
+            "user_name": "sasquach",
+            "password": "password"
+        },
     )
-    assert response.status_code == 422, response.text
-
+    assert response.status_code == 404, response.text
 
 async def test_create_user_valid(async_app_client):
     response = await async_app_client.post(
@@ -26,3 +28,4 @@ async def test_create_user_valid(async_app_client):
         },
     )
     assert response.status_code == 404, response.text
+

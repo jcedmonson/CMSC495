@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     drop_tables: bool = False
 
     class Config:
-        env_file = "../../db-service/auth_db.env"
+        env_file = "../db-service/auth_db.env"
         env_file_encoding = "UTF-8"
 
     @property

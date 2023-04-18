@@ -21,6 +21,7 @@ class Database:
     def __post_init__(self):
         self.settings = Settings()
 
+
         self.engine = create_async_engine(
             self.settings.dns,
             echo=False,

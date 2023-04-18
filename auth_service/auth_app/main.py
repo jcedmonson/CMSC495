@@ -1,25 +1,21 @@
 import logging.config
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.main import routers
 from app_settings import Settings
 from models.base import Base
-from backend.database import database
-
-import sys
-print(sys.path)
+from backend.database import database, get_session
+from models.user_account import UserAccount, UserLogin
 
 settings = Settings()
 logging.config.dictConfig(settings.log_settings)
 log = logging.getLogger("app")
 
-
 auth_app = FastAPI(
     title=settings.app_name,
     version=settings.version
 )
-auth_app.include_router(routers)
 
 
 @auth_app.on_event("startup")
@@ -35,6 +31,17 @@ async def startup() -> None:
 @auth_app.get("/")
 async def root() -> dict:
     return {"message": "Project set up properly"}
+
+
+@auth_app.post("/login")
+async def login(data: UserLogin,
+                session: AsyncSession = Depends(get_session)) -> str:
+    result = await UserAccount.login_user(session,
+                                          data.user_name,
+                                          data.password)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="User not found")
 
 
 if __name__ == "__main__":
