@@ -1,32 +1,14 @@
 import json
 from datetime import datetime, timedelta
+from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
-from app_settings import Settings
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-
-class User(BaseModel):
-    username: str
-    email: str | None = None
-    full_name: str | None = None
-    disabled: bool | None = None
-
-
-class UserInDB(User):
-    hashed_password: str
+from app_settings import Settings, oauth2_scheme, get_settings
+from models.user_account import UserAuthed
 
 
 
@@ -49,15 +31,17 @@ def create_access_token(settings: Settings, data: dict) -> json:
     return encoded_jwt
 
 
-async def get_user_from_jwt(settings: Settings, token: str):
+async def get_user_from_jwt(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        settings: Annotated[Settings, Depends(get_settings)]
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    import ipdb; ipdb.set_trace()
 
-    import ipdb;
-    ipdb.set_trace()
     try:
         payload = jwt.decode(token, settings.secret_key,
                              algorithms=[settings.algorithm])
@@ -75,12 +59,13 @@ async def get_user_from_jwt(settings: Settings, token: str):
     # return user
 
 
-async def get_current_active_user(
-        current_user: str = Depends(get_user_from_jwt)
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+async def get_current_user(
+        current_user: Annotated[str, Depends(oauth2_scheme)]) -> UserAuthed:
+    pass
+
+    # if current_user.disabled:
+    #     raise HTTPException(status_code=400, detail="Inactive user")
+    # return current_user
 
 # @app.post("/token", response_model=Token)
 # async def login_for_access_token(
@@ -102,13 +87,13 @@ async def get_current_active_user(
 #
 # @app.get("/users/me/", response_model=User)
 # async def read_users_me(
-#     current_user: Annotated[User, Depends(get_current_active_user)]
+#     current_user: Annotated[User, Depends(get_current_user)]
 # ):
 #     return current_user
 #
 #
 # @app.get("/users/me/items/")
 # async def read_own_items(
-#     current_user: Annotated[User, Depends(get_current_active_user)]
+#     current_user: Annotated[User, Depends(get_current_user)]
 # ):
 #     return [{"item_id": "Foo", "owner": current_user.username}]

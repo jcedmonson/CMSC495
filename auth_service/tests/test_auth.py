@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from httpx import AsyncClient
 
-from auth_app.main import auth_app, settings
+from auth_app.main import auth_app, get_settings
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -12,7 +12,7 @@ def event_loop():
     it you must declare an event loop as "session" and use that accross
     all the async pytest functions
     """
-    settings.drop_tables = True
+    get_settings().drop_tables = True
     policy = asyncio.get_event_loop_policy()
     loop = policy.new_event_loop()
     yield loop

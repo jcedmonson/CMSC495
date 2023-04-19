@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic import BaseSettings
 
 from passlib.context import CryptContext
@@ -5,6 +7,10 @@ from fastapi.security import OAuth2PasswordBearer
 
 oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="token")
 
+@lru_cache()
+def get_settings():
+    """Settings cache"""
+    return Settings()
 
 class Settings(BaseSettings):
     app_name: str = "Auth Service -- City Park"
@@ -78,3 +84,4 @@ class Settings(BaseSettings):
                 },
             }
         }
+

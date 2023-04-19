@@ -1,20 +1,15 @@
 import logging.config
-from functools import lru_cache
+from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.base import Base
 from backend.database import database, get_session
 from models.user_account import UserAccount, UserCreate, UserLogin, UserAuthed
-from app_settings import Settings, oauth2_scheme
-import models.jwt_token_handler as jwt
-
-
-@lru_cache()
-def get_settings():
-    """Settings cache"""
-    return Settings()
+from app_settings import Settings, get_settings
+import backend.jwt_token_handler as jwt
 
 
 logging.config.dictConfig(get_settings().log_settings)
@@ -66,20 +61,26 @@ async def user_create(
     return result
 
 
-@auth_app.get("/user2")
-async def user_jwt_get(token: str = Depends(oauth2_scheme)):
-    # token = request.headers.get("Authorization")
-    # if token is None:
-    #     credentials_exception = HTTPException(
-    #         status_code=status.HTTP_401_UNAUTHORIZED,
-    #         detail="Could not validate credentials",
-    #         headers={"WWW-Authenticate": "Bearer"},
-    #     )
-    #     raise credentials_exception
-    #
-    # current_user = await jwt.get_user_from_jwt(settings, token)
-    import ipdb;
-    ipdb.set_trace()
+@auth_app.get("/user")
+async def user_jwt_get(
+        current_user: Annotated[UserAuthed, Depends(jwt.get_user_from_jwt)]
+) -> UserAuthed:
+    return current_user
+
+
+@auth_app.post("/token")
+async def jwt_login(
+        session: AsyncSession = Depends(get_session),
+        form_data: OAuth2PasswordRequestForm = Depends()) -> dict | None:
+    # user_dict = fake_users_db.get(form_data.username)
+    # if not user_dict:
+    #     raise HTTPException(status_code=400, detail="Incorrect username or password")
+    # user = UserInDB(**user_dict)
+    # hashed_password = fake_hash_password(form_data.password)
+    # if not hashed_password == user.hashed_password:
+    #     raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    return {"access_token": "LKJALKJ", "token_type": "bearer"}
 
 
 if __name__ == "__main__":
