@@ -73,6 +73,7 @@ async def get_user(session: AsyncSession, username: str) -> UserAccount:
                             detail="Incorrect username or password")
     return result
 
+
 async def authenticate_user(session: AsyncSession, settings: Settings, username: str, password: str) -> UserAccount | bool:
     user = await get_user(session, username)
     if not user:

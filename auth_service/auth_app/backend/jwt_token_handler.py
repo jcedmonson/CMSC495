@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timedelta
 from typing import Annotated
+import logging
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -12,6 +13,8 @@ from backend import crud
 from models.user_account import UserAuthed
 from models.jwt_model import TokenData, JWTDBUser, JWTUser
 import dependency_injection as inj
+
+log = logging.getLogger("app.jwt")
 
 
 def verify_password(settings: Settings, plain_password: str,
@@ -50,6 +53,7 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         username: str = payload.get("sub")
@@ -64,10 +68,17 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
 
-    return JWTUser(username=user.user_name, email=user.email)
+    # Set the token for the user
+    user.token = token
+    session.commit()
+    session.refresh(user)
+
+    log.debug(f"User {UserAuthed(**user.__dict__)}")
+
+    return UserAuthed(**user.__dict__)
 
 async def get_current_active_user(
-        current_user: Annotated[JWTUser, Depends(get_current_user)]
+        current_user: Annotated[UserAuthed, Depends(get_current_user)]
 ):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")

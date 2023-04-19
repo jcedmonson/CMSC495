@@ -10,13 +10,15 @@ from backend.database import database, get_session
 from backend import crud
 import backend.jwt_token_handler as jwt
 from models.user_account import UserCreate, UserLogin, UserAuthed
-from models.jwt_model import JWTDBUser, Token, JWTUser
+from models.jwt_model import Token
 from models.base import Base
 from app_settings import Settings, get_settings
 import dependency_injection as inj
 
 logging.config.dictConfig(get_settings().log_settings)
 log = logging.getLogger("app")
+log.setLevel(get_settings().log_mode)
+
 auth_app = FastAPI(
     title=get_settings().app_name,
     version=get_settings().version
@@ -66,8 +68,9 @@ async def user_create(
 
 @auth_app.get("/user")
 async def user_jwt_get(
-        current_user: Annotated[JWTUser, Depends(jwt.get_current_active_user)]
-) -> JWTUser:
+        current_user: Annotated[UserAuthed, Depends(jwt.get_current_user)]
+) -> UserAuthed:
+    log.debug(f"Processing request from {current_user}")
     return current_user
 
 
@@ -77,17 +80,22 @@ async def jwt_login(
         session: inj.Session_t,
         settings: inj.Settings_t
 ):
+    log.debug(f"Authenticating user [{form_data.username}]")
 
     user = await crud.authenticate_user(session,
                                         settings,
                                         form_data.username,
                                         form_data.password)
     if not user:
+        log.debug(f"User {form_data.username} not found")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    log.debug(f"Successfully authenticated user, [{form_data.username}]")
+
     access_token_expires = timedelta(
         minutes=settings.access_token_expire_minutes)
 
@@ -97,6 +105,8 @@ async def jwt_login(
         expires_delta=access_token_expires
     )
 
+    log.debug(f"Created token {access_token}")
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -104,4 +114,4 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("main:auth_app", host="0.0.0.0", port=8888,
-                log_level="debug", reload=True)
+                log_level=get_settings().log_mode, reload=True)
