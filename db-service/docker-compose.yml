@@ -1,20 +1,39 @@
 version: '3.8'
 services:
-  db_child:
+  data_db:
     image: postgres
+    env_file:
+      - data_db.env
     platform: linux/amd64
-    container_name: db_child
+    container_name: data_db
     volumes:
-      - db_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
+      - data_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
     ports:
-      - 5432:5432
+      - 54320:5432
+    networks:
+      - cmsc495_network
+
+  auth_db:
+    image: postgres
+    env_file:
+      - auth_db.env
+    platform: linux/amd64
+    container_name: auth_db
+    volumes:
+      - auth_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
+    ports:
+      - 54321:5432
     networks:
       - cmsc495_network
 
 volumes:
-  db_volume:
+  auth_volume:
     external: true
-    name: db_volume
+    name: auth_volume
+
+  data_volume:
+    external: true
+    name: data_volume
 
 networks:
   cmsc495_network:
