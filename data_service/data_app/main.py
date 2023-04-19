@@ -2,10 +2,10 @@ import logging.config
 
 from fastapi import FastAPI
 
-from data_app.backend.main import routers
-from data_app.app_settings import Settings
-from data_app.models.base import Base
-from data_app.backend.database import database
+# from backend.main import routers
+from app_settings import Settings
+from models.base import Base
+# from backend.database import Database
 
 settings = Settings()
 logging.config.dictConfig(settings.log_settings)
@@ -15,16 +15,16 @@ data_app = FastAPI(
     title=settings.app_name,
     version=settings.version
 )
-data_app.include_router(routers)
+# data_app.include_router(routers)
 
 
 @data_app.on_event("startup")
 async def startup() -> None:
-    async with database.engine.begin() as conn:
-        if settings.drop_tables:
-            await conn.run_sync(Base.metadata.drop_all)
+    # async with database.engine.begin() as conn:
+    #     if settings.drop_tables:
+    #         await conn.run_sync(Base.metadata.drop_all)
 
-        await conn.run_sync(Base.metadata.create_all)
+    #     await conn.run_sync(Base.metadata.create_all)
     log.info("Database Initialized...")
 
 
