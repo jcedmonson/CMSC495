@@ -1,16 +1,19 @@
 import logging.config
+from datetime import timedelta
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.base import Base
 from backend.database import database, get_session
-from models.user_account import UserAccount, UserCreate, UserLogin, UserAuthed
-from app_settings import Settings, get_settings
+from backend import crud
 import backend.jwt_token_handler as jwt
-
+from models.user_account import UserCreate, UserLogin, UserAuthed
+from models.jwt_model import JWTDBUser
+from models.base import Base
+from app_settings import Settings, get_settings
+import dependency_injection as inj
 
 logging.config.dictConfig(get_settings().log_settings)
 log = logging.getLogger("app")
@@ -41,7 +44,7 @@ async def login(
         session: AsyncSession = Depends(get_session),
         settings: Settings = Depends(get_settings)) -> UserAuthed:
     try:
-        result = await UserAccount.login_user(session, settings, user)
+        result = await crud.login_user(session, settings, user)
     except:
         raise
 
@@ -53,7 +56,7 @@ async def user_create(
         user: UserCreate,
         session: AsyncSession = Depends(get_session),
         settings: Settings = Depends(get_settings)) -> UserAuthed:
-    result = await UserAccount.create_user(session, settings, user)
+    result = await crud.create_user(session, settings, user)
 
     if isinstance(result, str):
         raise HTTPException(status_code=404, detail=result)
@@ -63,24 +66,35 @@ async def user_create(
 
 @auth_app.get("/user")
 async def user_jwt_get(
-        current_user: Annotated[UserAuthed, Depends(jwt.get_user_from_jwt)]
-) -> UserAuthed:
+        current_user: Annotated[JWTDBUser, Depends(jwt.get_user_from_jwt)]
+) -> JWTDBUser:
     return current_user
 
 
 @auth_app.post("/token")
 async def jwt_login(
-        session: AsyncSession = Depends(get_session),
-        form_data: OAuth2PasswordRequestForm = Depends()) -> dict | None:
-    # user_dict = fake_users_db.get(form_data.username)
-    # if not user_dict:
-    #     raise HTTPException(status_code=400, detail="Incorrect username or password")
-    # user = UserInDB(**user_dict)
-    # hashed_password = fake_hash_password(form_data.password)
-    # if not hashed_password == user.hashed_password:
-    #     raise HTTPException(status_code=400, detail="Incorrect username or password")
+        session: inj.Session_t,
+        settings: inj.Settings_t,
+        form_data: OAuth2PasswordRequestForm = Depends()
+) -> dict | None:
+    user = await crud.authenticate_user(session,
+                                        form_data.username,
+                                        form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(
+        minutes=settings.access_token_expire_minutes)
 
-    return {"access_token": "LKJALKJ", "token_type": "bearer"}
+    access_token = jwt.create_access_token(
+        data={"sub": user.username},
+        settings=settings,
+        expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 if __name__ == "__main__":

@@ -82,7 +82,7 @@ async def test_user_valid_token(async_app_client: AsyncClient) -> None:
     assert response.status_code == 201, response.text
 
     headers = {"Authorization": f"Bearer {response.json().get('token')}"}
-    response = await async_app_client.get("/user2", headers=headers)
+    response = await async_app_client.get("/user", headers=headers)
 
     import ipdb; ipdb.set_trace()
 

@@ -8,8 +8,10 @@ from jose import JWTError, jwt
 from pydantic import BaseModel
 
 from app_settings import Settings, oauth2_scheme, get_settings
+from backend import crud
 from models.user_account import UserAuthed
-
+from models.jwt_model import TokenData, JWTDBUser
+import dependency_injection as inj
 
 
 def verify_password(settings: Settings, plain_password: str,
@@ -21,26 +23,32 @@ def get_password_hash(settings: Settings, password: str) -> bytes:
     return settings.pwd_context.hash(password).encode("UTF-8")
 
 
-def create_access_token(settings: Settings, data: dict) -> json:
+def create_access_token(data: dict,
+                        settings: Settings,
+                        expires_delta: timedelta | None = None):
     to_encode = data.copy()
-    expires = datetime.utcnow() + timedelta(
-        minutes=settings.access_token_expire_minutes)
-    to_encode.update({"exp": expires})
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key,
+
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.access_token_expire_minutes,
                              algorithm=settings.algorithm)
     return encoded_jwt
 
 
 async def get_user_from_jwt(
         token: Annotated[str, Depends(oauth2_scheme)],
-        settings: Annotated[Settings, Depends(get_settings)]
+        settings: inj.Settings_t,
+        session: inj.Session_t
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    import ipdb; ipdb.set_trace()
 
     try:
         payload = jwt.decode(token, settings.secret_key,
@@ -52,11 +60,12 @@ async def get_user_from_jwt(
     except JWTError:
         raise credentials_exception
 
-    #
-    # user = get_user(fake_users_db, username=token_data.username)
-    # if user is None:
-    #     raise credentials_exception
-    # return user
+    user = await crud.get_user(username, session)
+    if user is None:
+        raise credentials_exception
+
+    return JWTDBUser(username=user.user_name,
+                     hashed_password=user.password_hash)
 
 
 async def get_current_user(
