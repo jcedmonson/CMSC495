@@ -12,7 +12,7 @@ def event_loop():
     it you must declare an event loop as "session" and use that accross
     all the async pytest functions
     """
-    get_settings().drop_tables = True
+    # get_settings().drop_tables = True
     policy = asyncio.get_event_loop_policy()
     loop = policy.new_event_loop()
     yield loop
@@ -83,6 +83,7 @@ async def test_user_valid_token(async_app_client: AsyncClient) -> None:
 
     headers = {"Authorization": f"Bearer {response.json().get('token')}"}
     response = await async_app_client.get("/user", headers=headers)
+    assert response.status_code == 201, response.text
 
     import ipdb; ipdb.set_trace()
 

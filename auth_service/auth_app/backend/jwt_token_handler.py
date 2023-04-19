@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from app_settings import Settings, oauth2_scheme, get_settings
 from backend import crud
 from models.user_account import UserAuthed
-from models.jwt_model import TokenData, JWTDBUser
+from models.jwt_model import TokenData, JWTDBUser, JWTUser
 import dependency_injection as inj
 
 
@@ -34,25 +34,24 @@ def create_access_token(data: dict,
         expire = datetime.utcnow() + timedelta(minutes=15)
 
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.access_token_expire_minutes,
+    encoded_jwt = jwt.encode(to_encode,
+                             settings.secret_key,
                              algorithm=settings.algorithm)
     return encoded_jwt
 
 
-async def get_user_from_jwt(
+async def get_current_user(
         token: Annotated[str, Depends(oauth2_scheme)],
-        settings: inj.Settings_t,
-        session: inj.Session_t
+        session: inj.Session_t,
+        settings: inj.Settings_t
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-
     try:
-        payload = jwt.decode(token, settings.secret_key,
-                             algorithms=[settings.algorithm])
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
@@ -60,49 +59,16 @@ async def get_user_from_jwt(
     except JWTError:
         raise credentials_exception
 
-    user = await crud.get_user(username, session)
+
+    user = await crud.get_user(session, token_data.username)
     if user is None:
         raise credentials_exception
 
-    return JWTDBUser(username=user.user_name,
-                     hashed_password=user.password_hash)
+    return JWTUser(username=user.user_name, email=user.email)
 
-
-async def get_current_user(
-        current_user: Annotated[str, Depends(oauth2_scheme)]) -> UserAuthed:
-    pass
-
-    # if current_user.disabled:
-    #     raise HTTPException(status_code=400, detail="Inactive user")
-    # return current_user
-
-# @app.post("/token", response_model=Token)
-# async def login_for_access_token(
-#     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
-# ):
-#     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-#     if not user:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Incorrect username or password",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-#     access_token = create_access_token(
-#         data={"sub": user.username}, expires_delta=access_token_expires
-#     )
-#     return {"access_token": access_token, "token_type": "bearer"}
-#
-#
-# @app.get("/users/me/", response_model=User)
-# async def read_users_me(
-#     current_user: Annotated[User, Depends(get_current_user)]
-# ):
-#     return current_user
-#
-#
-# @app.get("/users/me/items/")
-# async def read_own_items(
-#     current_user: Annotated[User, Depends(get_current_user)]
-# ):
-#     return [{"item_id": "Foo", "owner": current_user.username}]
+async def get_current_active_user(
+        current_user: Annotated[JWTUser, Depends(get_current_user)]
+):
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user

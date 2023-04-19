@@ -51,4 +51,4 @@ class UserAuthed(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    token: str
+    token: str | None

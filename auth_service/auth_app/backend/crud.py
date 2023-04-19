@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.user_account import UserAccount, UserLogin, UserAuthed, UserCreate
+from app_settings import Settings
 from backend import jwt_token_handler as jwt
 import dependency_injection as inj
 
@@ -58,17 +59,11 @@ async def create_user(session: inj.Session_t,
     await session.commit()
     await session.refresh(new_user)
 
-    # Returned the "authed user
-    new_user.token = jwt.create_access_token(settings,
-                                             {"sub": new_user.user_name})
-    new_user.auth_creation_date = datetime.utcnow()
-    await session.commit()
-
     return UserAuthed(**new_user.__dict__)
 
 
-async def get_user(user: str, session: AsyncSession) -> UserAccount:
-    stmt = select(UserAccount).where(UserAccount.user_name == user)
+async def get_user(session: AsyncSession, username: str) -> UserAccount:
+    stmt = select(UserAccount).where(UserAccount.user_name == username)
 
     result = await session.execute(stmt)
     result = result.scalar_one_or_none()
@@ -78,6 +73,13 @@ async def get_user(user: str, session: AsyncSession) -> UserAccount:
                             detail="Incorrect username or password")
     return result
 
-async def authenticate_user(session: AsyncSession, user_name: str, password: str):
-    pass
+async def authenticate_user(session: AsyncSession, settings: Settings, username: str, password: str) -> UserAccount | bool:
+    user = await get_user(session, username)
+    if not user:
+        return False
+
+    if not jwt.verify_password(settings, password, user.password_hash):
+        return False
+
+    return user
 

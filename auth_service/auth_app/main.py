@@ -10,7 +10,7 @@ from backend.database import database, get_session
 from backend import crud
 import backend.jwt_token_handler as jwt
 from models.user_account import UserCreate, UserLogin, UserAuthed
-from models.jwt_model import JWTDBUser
+from models.jwt_model import JWTDBUser, Token, JWTUser
 from models.base import Base
 from app_settings import Settings, get_settings
 import dependency_injection as inj
@@ -66,18 +66,20 @@ async def user_create(
 
 @auth_app.get("/user")
 async def user_jwt_get(
-        current_user: Annotated[JWTDBUser, Depends(jwt.get_user_from_jwt)]
-) -> JWTDBUser:
+        current_user: Annotated[JWTUser, Depends(jwt.get_current_active_user)]
+) -> JWTUser:
     return current_user
 
 
-@auth_app.post("/token")
+@auth_app.post("/token", response_model=Token)
 async def jwt_login(
+        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         session: inj.Session_t,
-        settings: inj.Settings_t,
-        form_data: OAuth2PasswordRequestForm = Depends()
-) -> dict | None:
+        settings: inj.Settings_t
+):
+
     user = await crud.authenticate_user(session,
+                                        settings,
                                         form_data.username,
                                         form_data.password)
     if not user:
@@ -90,10 +92,11 @@ async def jwt_login(
         minutes=settings.access_token_expire_minutes)
 
     access_token = jwt.create_access_token(
-        data={"sub": user.username},
+        data={"sub": user.user_name},
         settings=settings,
         expires_delta=access_token_expires
     )
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 
