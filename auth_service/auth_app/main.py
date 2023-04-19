@@ -19,11 +19,11 @@ logging.config.dictConfig(get_settings().log_settings)
 log = logging.getLogger("app")
 log.setLevel(get_settings().log_mode)
 
+
 auth_app = FastAPI(
     title=get_settings().app_name,
-    version=get_settings().version
+    version=get_settings().version,
 )
-
 
 @auth_app.on_event("startup")
 async def startup() -> None:
@@ -35,16 +35,13 @@ async def startup() -> None:
     log.info("Database Initialized...")
 
 
-@auth_app.get("/")
-async def root() -> dict:
-    return {"message": "Project set up properly"}
-
-
-@auth_app.post("/login")
+@auth_app.post("/login", summary="Authenticate user")
 async def login(
         user: UserLogin,
-        session: AsyncSession = Depends(get_session),
-        settings: Settings = Depends(get_settings)) -> UserAuthed:
+        session: inj.Session_t,
+        settings: inj.Settings_t) -> UserAuthed:
+    """Authenticate a user by providing a username and password"""
+
     try:
         result = await crud.login_user(session, settings, user)
     except:
@@ -53,20 +50,20 @@ async def login(
     return result
 
 
-@auth_app.post("/user", status_code=201)
+@auth_app.post("/user", status_code=201, summary="Create a new user")
 async def user_create(
         user: UserCreate,
         session: AsyncSession = Depends(get_session),
-        settings: Settings = Depends(get_settings)) -> UserAuthed:
+        settings: Settings = Depends(get_settings)) -> None:
     result = await crud.create_user(session, settings, user)
 
     if isinstance(result, str):
         raise HTTPException(status_code=404, detail=result)
 
-    return result
+    log.debug(f"User {result.user_name} has been created")
 
 
-@auth_app.get("/user")
+@auth_app.get("/user", summary="Validate users JWT token")
 async def user_jwt_get(
         current_user: Annotated[UserAuthed, Depends(jwt.get_current_user)]
 ) -> UserAuthed:
@@ -74,12 +71,14 @@ async def user_jwt_get(
     return current_user
 
 
-@auth_app.post("/token", response_model=Token)
+@auth_app.post("/token", response_model=Token, summary="OAuth2 Endpoint")
 async def jwt_login(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         session: inj.Session_t,
         settings: inj.Settings_t
 ):
+    """Endpoint is used internally. There is no uppercase where a user would
+    need to hit this endpoint at this time"""
     log.debug(f"Authenticating user [{form_data.username}]")
 
     user = await crud.authenticate_user(session,
@@ -113,5 +112,7 @@ async def jwt_login(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:auth_app", host="0.0.0.0", port=8888,
-                log_level=get_settings().log_mode, reload=True)
+    uvicorn.run("main:auth_app",
+                host="0.0.0.0",
+                port=8888,
+                reload=True)

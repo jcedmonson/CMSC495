@@ -70,8 +70,8 @@ async def get_current_user(
 
     # Set the token for the user
     user.token = token
-    session.commit()
-    session.refresh(user)
+    await session.commit()
+    await session.refresh(user)
 
     log.debug(f"User {UserAuthed(**user.__dict__)}")
 

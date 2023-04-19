@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import HTTPException, status
 
@@ -15,17 +15,14 @@ async def login_user(session: inj.Session_t,
                      settings: inj.Session_t,
                      user: UserLogin
                      ) -> UserAuthed | None:
-    stmt = select(UserAccount).where(UserAccount.user_name == user.user_name)
-    result = await session.execute(stmt)
-    user_db = result.scalar_one_or_none()
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
-    if not jwt.verify_password(settings, user.password,
+    try:
+        user_db = await get_user(session, user.user_name)
+    except:
+        raise
+
+    if not jwt.verify_password(settings,
+                               user.password,
                                user_db.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -33,8 +30,20 @@ async def login_user(session: inj.Session_t,
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token = jwt.create_access_token(settings, {"user": user_db.user_name})
-    return UserAuthed(**user_db._mapping, token=token)
+    access_token_expires = timedelta(
+        minutes=settings.access_token_expire_minutes)
+
+    access_token = jwt.create_access_token(
+        data={"sub": user_db.user_name},
+        settings=settings,
+        expires_delta=access_token_expires
+    )
+
+    user_db.token = access_token
+    await session.commit()
+    await session.refresh(user_db)
+
+    return UserAuthed(**user_db.__dict__)
 
 
 async def create_user(session: inj.Session_t,
@@ -69,8 +78,11 @@ async def get_user(session: AsyncSession, username: str) -> UserAccount:
     result = result.scalar_one_or_none()
 
     if result is None:
-        raise HTTPException(status_code=400,
-                            detail="Incorrect username or password")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return result
 
 

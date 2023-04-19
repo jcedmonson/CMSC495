@@ -4,6 +4,9 @@ import pytest
 from httpx import AsyncClient
 
 from auth_app.main import auth_app, get_settings
+from auth_app.backend.database import database
+from models.base import Base
+
 
 
 @pytest.fixture(scope="session")
@@ -24,9 +27,13 @@ def event_loop():
 async def async_app_client(event_loop):
     async with AsyncClient(app=auth_app,
                            base_url='http://127.0.0.1:8888') as client:
+        async with database.engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+
         await auth_app.router.startup()
         yield client
         await auth_app.router.shutdown()
+
 
 
 async def test_login_user_not_found(async_app_client):
@@ -37,7 +44,7 @@ async def test_login_user_not_found(async_app_client):
             "password": "password"
         },
     )
-    assert response.status_code == 404, response.text
+    assert response.status_code == 401, response.text
 
 
 async def test_login_user_invalid_req(async_app_client: AsyncClient) -> None:
@@ -75,25 +82,36 @@ async def test_user_valid_creation(async_app_client: AsyncClient) -> None:
 
 
 async def test_user_valid_token(async_app_client: AsyncClient) -> None:
+    async with database.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+    username = "sasquach22"
+    password = "johnson"
+    # Create user
     response = await async_app_client.post(
         "/user",
         json={
-            "user_name": "sasquach",
+            "user_name": username,
             "first_name": "johnson",
             "last_name": "also johnson",
-            "password": "password",
+            "password": password,
             "email": "johnson@johnson.com"
         },
     )
     assert response.status_code == 201, response.text
 
-    # response = async_app_client.post("/token",
-    #                                  data={"username": "johndoe",
-    #                                        "password": "secret",
-    #                                        "grant_type": "password"},
-    #                                  headers={
-    #                                      "content-type": "application/x-www-form-urlencoded"})
+    # log in with that user
+    response = await async_app_client.post(
+        "/login",
+        json={
+            "user_name": username,
+            "password": password,
+        },
+    )
+    assert response.status_code == 200, response.text
 
+    # Verify the token with the /user endpoint
     headers = {"Authorization": f"Bearer {response.json().get('token')}"}
     response = await async_app_client.get("/user", headers=headers)
-    assert response.status_code == 201, response.text
+    assert response.status_code == 200, response.text
