@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, EmailStr
 
 from .base import Base
-import auth_app.models.jwt_token_handler as jwt
-from auth_app.app_settings import Settings
+from app_settings import Settings
+from models import jwt_token_handler as jwt
 
 
 class UserAccount(Base):
@@ -86,8 +86,7 @@ class UserAccount(Base):
         await session.refresh(new_user)
 
         # Returned the "authed user
-
-        new_user.token = jwt.create_access_token(settings, {"user": new_user.user_name})
+        new_user.token = jwt.create_access_token(settings, {"sub": new_user.user_name})
         new_user.auth_creation_date = datetime.utcnow()
         await session.commit()
 

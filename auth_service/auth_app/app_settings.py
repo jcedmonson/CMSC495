@@ -3,6 +3,9 @@ from pydantic import BaseSettings
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 
+oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="token")
+
+
 class Settings(BaseSettings):
     app_name: str = "Auth Service -- City Park"
     version: str = "0.0.1"
@@ -13,15 +16,15 @@ class Settings(BaseSettings):
     host: str
     port: int = 5432
 
-    drop_tables: bool = True
+    drop_tables: bool = False
 
     # JWT section
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
 
-    pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated=["auto"])
-    oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="token")
+    pwd_context: CryptContext = CryptContext(schemes=["bcrypt"],
+                                             deprecated=["auto"])
 
     @property
     def dns(self) -> str:
