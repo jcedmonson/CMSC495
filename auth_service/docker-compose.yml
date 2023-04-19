@@ -1,18 +1,20 @@
 version: '3.8'
 services:
-  db_service_child:
-    container_name: db_service_child
+  auth_service:
+    container_name: auth_service
     build:
       context: .
-      dockerfile: db_service.dockerfile
+      dockerfile: auth_service.dockerfile
     ports:
-      - 8080:8080
+      - 8888:8888
     volumes:
       - .:/opt/code
     networks:
       - cmsc495_network
     depends_on:
-      - db
+      - auth_db
+    env_file:
+      - ../db-service/auth_db.env
 
 
 networks:
