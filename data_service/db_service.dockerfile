@@ -33,4 +33,4 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY . ${WORKDIR}
 
 # Entry point of dev null used for debugging
-CMD ["python", "main.py"]
+CMD ["python", "data_app/main.py"]

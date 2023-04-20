@@ -3,7 +3,7 @@ services:
   data_db:
     image: postgres
     env_file:
-      - data_db.env
+      - $PWD/db-service/data_db.env
     platform: linux/amd64
     container_name: data_db
     volumes:
@@ -16,7 +16,7 @@ services:
   auth_db:
     image: postgres
     env_file:
-      - auth_db.env
+      - $PWD/db-service/auth_db.env
     platform: linux/amd64
     container_name: auth_db
     volumes:
