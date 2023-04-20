@@ -14,7 +14,7 @@ services:
     depends_on:
       - auth_db
     env_file:
-      - ../db-service/auth_db.env
+      - $PWD/db-service/auth_db.env
 
 
 networks:
