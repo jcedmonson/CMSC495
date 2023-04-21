@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from backend.routers import routers
 from backend.database import database
 
-from app_settings import get_settings
+from app_settings_data import get_settings
 from models.base import Base
 
 logging.config.dictConfig(get_settings().log_settings)

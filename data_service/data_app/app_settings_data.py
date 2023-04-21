@@ -1,11 +1,24 @@
+import logging
 from functools import lru_cache
 
 from pydantic import BaseSettings
+from httpx import AsyncClient
+
+log = logging.getLogger("app.jwt")
 
 @lru_cache()
 def get_settings():
     """Settings cache"""
     return Settings()
+
+async def get_oauth2_session():
+    settings = get_settings()
+    try:
+        async with AsyncClient(base_url=settings.oauth2_endpoint) as client:
+            yield client
+
+    except Exception as error:
+        log.error(f"Getting the error ere {error}")
 
 class Settings(BaseSettings):
     app_name: str = "Data Service -- City Park"
@@ -16,6 +29,8 @@ class Settings(BaseSettings):
     pgdata: str
     pgport: int = 5432
     host: str
+
+    oauth2_endpoint: str = "http://auth_service:8888"
 
     drop_tables: bool = False
     log_mode: str = "DEBUG"

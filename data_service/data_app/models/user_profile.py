@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from sqlalchemy import String, select
 from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.ext.asyncio import AsyncSession
