@@ -33,5 +33,5 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY . ${WORKDIR}
 
 # Entry point of dev null used for debugging
-CMD ["python", "auth_app/main.py"]
-#ENTRYPOINT ["tail", "-f", "/dev/null"]
+#CMD ["python", "auth_app/main.py"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
