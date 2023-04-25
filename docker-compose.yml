@@ -1,13 +1,13 @@
 version: '3.8'
 services:
 
-  # front-end:
-  #   extends:
-  #     file: front-end/docker-compose.yml
-  #     service: nginx
-  #   depends_on:
-  #     - data_db
-  #     - data-service
+  front-end:
+    extends:
+      file: front-end/docker-compose.yml
+      service: nginx
+    depends_on:
+      - data_db
+      - data-service
 
   auth_db:
     extends:
@@ -19,12 +19,12 @@ services:
       file: db-service/docker-compose.yml
       service: data_db
 
-  data-service:
-    extends:
-      file: data_service/docker-compose.yml
-      service: data_service
-    depends_on:
-      - data_db
+  # data-service:
+  #   extends:
+  #     file: data_service/docker-compose.yml
+  #     service: data_service
+  #   depends_on:
+  #     - data_db
 
   auth-service:
     extends:
