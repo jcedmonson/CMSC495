@@ -19,7 +19,7 @@ export default({ mode }) => {
           autoImport: true,
         }),
       ],
-      define: { 'process.env': { AUTH_SERVICE: import.meta}},
+      define: { 'process.env': {}},
       resolve: {
         alias: {
           '@': fileURLToPath(new URL('./src', import.meta.url)),
