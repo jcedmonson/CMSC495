@@ -9,7 +9,6 @@ import { defineStore } from "pinia";
 import { loginRequest, tokenCheck } from "@/scripts/user"
 import { postStore } from "./posts";
 import axios from "axios";
-
 /**
  * User Store
  * @returns {Object}
@@ -53,8 +52,7 @@ export const userStore = defineStore("user", {
      * @memberof store.user
      */
     addConnection(conn){
-      const api = "http://192.168.131.2:5000"
-      axios.post(`${api}/user/${this.userId}/connection`, conn).then((resp) => {
+      axios.post(`auth/user/${this.userId}/connection`, conn).then((resp) => {
         this.connections.push(conn);
         const post = postStore();
         post.getPosts();

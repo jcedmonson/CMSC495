@@ -7,7 +7,7 @@ services:
     platform: linux/amd64
     container_name: nginx
     ports:
-      - 8080:80
+      - 4000:80
     networks:
       - cmsc495_network
 

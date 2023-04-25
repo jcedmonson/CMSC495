@@ -12,8 +12,7 @@ import router from "@/router";
  */
 async function loginRequest(loginData) {
   const user = userStore();
-  const authApi = "http://192.168.131.2:5000";
-  return axios.post(`${authApi}/login`, loginData).then((resp) => {
+  return axios.post(`auth/login`, loginData).then((resp) => {
     const u = resp.data;
     user.userId = u.userId;
     user.username = u.username;
@@ -36,9 +35,8 @@ async function loginRequest(loginData) {
 async function tokenCheck(token) {
   const user = userStore();
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  const authApi = "http://192.168.131.2:5000";
   return axios
-    .get(`${authApi}/user`)
+    .get(`auth/user`)
     .then((resp) => {
       const u = resp.data;
       user.userId = u.userId;
