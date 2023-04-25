@@ -23,8 +23,8 @@ export default({ mode }) => {
       resolve: {
         alias: {
           '@': fileURLToPath(new URL('./src', import.meta.url)),
-          '/auth': process.env.AUTH_SERVICE,
-          '/data': process.env.DATA_SERVICE,      
+          'auth/': process.env.AUTH_SERVICE,
+          'data/': process.env.DATA_SERVICE,      
         },
         extensions: [
           '.js',
