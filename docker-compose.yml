@@ -1,30 +1,46 @@
 version: '3.8'
 services:
 
-  front-end:
-    extends:
-      file: front-end/docker-compose.yml
-      service: nginx
-    depends_on:
-      - db
-      - data-service
+  # front-end:
+  #   extends:
+  #     file: front-end/docker-compose.yml
+  #     service: nginx
+  #   depends_on:
+  #     - data_db
+  #     - data-service
 
-  db:
+  auth_db:
     extends:
       file: db-service/docker-compose.yml
-      service: db_child
+      service: auth_db
+
+  data_db:
+    extends:
+      file: db-service/docker-compose.yml
+      service: data_db
 
   data-service:
     extends:
-      file: data-service/docker-compose.yml
-      service: db_service_child
+      file: data_service/docker-compose.yml
+      service: data_service
     depends_on:
-      - db
+      - data_db
+
+  auth-service:
+    extends:
+      file: auth_service/docker-compose.yml
+      service: auth_service
+    depends_on:
+      - auth_db
 
 volumes:
-  db_volume:
+  auth_volume:
     external: true
-    name: db_volume
+    name: auth_volume
+
+  data_volume:
+    external: true
+    name: data_volume
 
 networks:
   cmsc495_network:

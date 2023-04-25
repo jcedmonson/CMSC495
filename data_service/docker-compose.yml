@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  data_service:
+    container_name: data_service
+    build:
+      context: .
+      dockerfile: db_service.dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/opt/code
+    networks:
+      - cmsc495_network
+    depends_on:
+      - data_db
+    env_file:
+      - $PWD/db-service/data_db.env
+
+
+networks:
+  cmsc495_network:
+    external: true
+    name: cmsc495_network

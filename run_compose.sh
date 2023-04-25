@@ -1,10 +1,11 @@
 #!/usr/bin/env zsh
-docker volume create --name=db_volume
+docker volume create --name=auth_volume
+docker volume create --name=data_volume
 
 docker network inspect cmsc495_network >/dev/null 2>&1 || \
     docker network create --driver bridge cmsc495_network
 
-docker compose up -d
+docker compose -f docker-compose.yml up -d
 
 docker compose logs
 
