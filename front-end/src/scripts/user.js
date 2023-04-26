@@ -2,6 +2,8 @@ import axios from "axios";
 import { userStore } from "@/store/user";
 import router from "@/router";
 
+const AUTH_SERVICE = import.meta.env.VITE_AUTH_SERVICE
+
 /**
  * Login request method which posts to a predefined endpoint.
  * @memberof store.user
@@ -12,7 +14,7 @@ import router from "@/router";
  */
 async function loginRequest(loginData) {
   const user = userStore();
-  return axios.post(`auth/login`, loginData).then((resp) => {
+  return axios.post(`${AUTH_SERVICE}/login`, loginData).then((resp) => {
     const u = resp.data;
     user.userId = u.userId;
     user.username = u.username;
@@ -36,7 +38,7 @@ async function tokenCheck(token) {
   const user = userStore();
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   return axios
-    .get(`auth/user`)
+    .get(`${AUTH_SERVICE}/user`)
     .then((resp) => {
       const u = resp.data;
       user.userId = u.userId;

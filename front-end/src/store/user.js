@@ -9,6 +9,9 @@ import { defineStore } from "pinia";
 import { loginRequest, tokenCheck } from "@/scripts/user"
 import { postStore } from "./posts";
 import axios from "axios";
+
+const AUTH_SERVICE = import.meta.env.VITE_AUTH_SERVICE
+
 /**
  * User Store
  * @returns {Object}
@@ -52,7 +55,7 @@ export const userStore = defineStore("user", {
      * @memberof store.user
      */
     addConnection(conn){
-      axios.post(`auth/user/${this.userId}/connection`, conn).then((resp) => {
+      axios.post(`${AUTH_SERVICE}/user/${this.userId}/connection`, conn).then((resp) => {
         this.connections.push(conn);
         const post = postStore();
         post.getPosts();

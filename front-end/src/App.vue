@@ -3,7 +3,6 @@
 </template>
 
 <script setup>
-console.log(process.env.AUTH_SERVICE)
 </script>
 
 <style>
