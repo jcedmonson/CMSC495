@@ -28,6 +28,9 @@ export default ({ mode }) => {
       },
       extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
     },
+    build: {
+      outDir: 'server/dist'
+    },
     server: {
       port: 3000,
     },
