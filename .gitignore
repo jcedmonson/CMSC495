@@ -4,3 +4,5 @@ fake-data/
 .vscode/
 .DS_Store
 .idea
+front-end/server/certs/*
+front-end/server/dist

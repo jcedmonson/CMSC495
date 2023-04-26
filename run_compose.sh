@@ -6,10 +6,12 @@ docker volume create --name=data_volume
 
 echo "*** Generating Certificates ***"
 
-sudo rm -rf front-end/nginx/etc/nginx/ssl/
-sudo mkdir front-end/nginx/etc/nginx/ssl/
+CERTS_DIR = front-end/server/certs
+sudo rm -rf $CERTS_DIR
+sudo mkdir $CERTS_DIR
 
-openssl req -x509 -newkey rsa:4096 -keyout front-end/nginx/etc/nginx/ssl/key.pem -out front-end/nginx/etc/nginx/ssl/cert.pem -sha256 -days 365
+openssl req -x509 -newkey rsa:2048 -keyout $CERTS_DIR/keytmp.pem -out $CERTS_DIR/cert.pem -days 365
+openssl rsa -in $CERTS_DIR/keytmp.pem -out $CERTS_DIR/key.pem
 
 echo "*** Creating Network ***"
 docker network inspect cmsc495_network >/dev/null 2>&1 || \
