@@ -6,7 +6,7 @@ docker volume create --name=data_volume
 
 echo "*** Generating Certificates ***"
 
-CERTS_DIR = front-end/server/certs
+CERTS_DIR=front-end/server/certs
 rm -rf $CERTS_DIR
 mkdir $CERTS_DIR
 
