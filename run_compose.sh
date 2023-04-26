@@ -7,8 +7,8 @@ docker volume create --name=data_volume
 echo "*** Generating Certificates ***"
 
 CERTS_DIR = front-end/server/certs
-sudo rm -rf $CERTS_DIR
-sudo mkdir $CERTS_DIR
+rm -rf $CERTS_DIR
+mkdir $CERTS_DIR
 
 openssl req -x509 -newkey rsa:2048 -keyout $CERTS_DIR/keytmp.pem -out $CERTS_DIR/cert.pem -days 365
 openssl rsa -in $CERTS_DIR/keytmp.pem -out $CERTS_DIR/key.pem
