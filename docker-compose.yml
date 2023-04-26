@@ -4,7 +4,7 @@ services:
   front-end:
     extends:
       file: front-end/docker-compose.yml
-      service: nginx
+      service: express
     # depends_on:
     #   - data_db
     #   - data-service
