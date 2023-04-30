@@ -32,7 +32,9 @@ export default ({ mode }) => {
       outDir: 'server/dist'
     },
     server: {
-      port: 3000,
+      port: 4000,
+      https: false,
+      host: `192.168.131.3`
     },
   });
 };
