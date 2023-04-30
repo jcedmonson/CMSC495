@@ -37,6 +37,5 @@ const user = userStore();
 const posts = postStore();
 posts.getPosts();
 </script>
-
 <style scoped>
 </style>

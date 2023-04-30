@@ -1,6 +1,11 @@
 version: '3.8'
 services:
 
+  reverse_proxy:
+    extends:
+      file: nginx/docker-compose.yml
+      service: nginx
+
   front-end:
     extends:
       file: front-end/docker-compose.yml

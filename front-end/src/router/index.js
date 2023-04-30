@@ -12,7 +12,7 @@ const routes = [
     component: () => import('@/layouts/default/Default.vue'),
     children: [
       {
-        path: '',
+        path: '/',
         name: 'Home',
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
@@ -34,7 +34,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  // history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(process.env.BASE_URL),
   routes,
 })
 

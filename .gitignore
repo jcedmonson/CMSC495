@@ -6,3 +6,4 @@ fake-data/
 .idea
 front-end/server/certs/*
 front-end/server/dist
+nginx/certs/*

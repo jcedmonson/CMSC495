@@ -25,7 +25,7 @@ const user = userStore();
 
 router.beforeEach((to, from, next) => {
   const token = sessionStorage.getItem("city_park_token");
-
+  
   if (user.loggedIn) {
     document.title = to.name;
     next();
