@@ -15,7 +15,11 @@ import { defineStore } from 'pinia'
  */
 export const appStore = defineStore('app', {
   state: () => ({
-    users: []
+    users: [],
+    message: {
+      content: "",
+      show: false
+    }
   }),
   actions: {
     /**
@@ -29,7 +33,17 @@ export const appStore = defineStore('app', {
         this.users = resp.data
       }).catch((err) => {
         // notify user
+
       })
+    },
+
+    showMessage(content){
+      this.message.content = content;
+      this.message.show = true;
+      setTimeout(() => {
+        this.message.show = false;
+      }, 6000)
     }
+
   }
 })
