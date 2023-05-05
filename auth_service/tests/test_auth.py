@@ -123,5 +123,3 @@ async def test_user_valid_token(async_app_client: AsyncClient) -> None:
 
     response = await async_app_client.get("/get_users", headers=headers)
     assert response.status_code == 200, response.text
-    import ipdb
-    ipdb.set_trace()

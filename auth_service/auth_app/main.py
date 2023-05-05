@@ -76,9 +76,9 @@ async def get_all_users(
         current_user: Annotated[UserAuthed, Depends(jwt.get_current_user)],
         session: inj.Session_t,
 ) -> list[UserAcc]:
+    # current_user is to ensure that the user is a valid user
 
-    result = await crud.get_all_users(session)
-    return result
+    return await crud.get_all_users(session)
 
 @auth_app.post("/token", response_model=Token, summary="OAuth2 Endpoint")
 async def jwt_login(
