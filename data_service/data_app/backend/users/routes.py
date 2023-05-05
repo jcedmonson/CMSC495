@@ -18,4 +18,5 @@ async def fetch_all_users(authorization: Annotated[str | None, Header()],
     except:
         raise
 
+
     return {"request": "valid"}

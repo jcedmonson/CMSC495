@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.database import database, get_session
 from backend import crud
 import backend.jwt_token_handler as jwt
-from models.user_account import UserCreate, UserLogin, UserAuthed
+from models.user_account import UserCreate, UserLogin, UserAuthed, UserAcc
 from models.jwt_model import Token
 from models.base import Base
 from app_settings import Settings, get_settings
@@ -55,8 +55,8 @@ async def user_create(
         user: UserCreate,
         session: AsyncSession = Depends(get_session),
         settings: Settings = Depends(get_settings)) -> None:
-    result = await crud.create_user(session, settings, user)
 
+    result = await crud.create_user(session, settings, user)
     if isinstance(result, str):
         raise HTTPException(status_code=404, detail=result)
 
@@ -70,6 +70,14 @@ async def user_jwt_get(
     log.debug(f"Processing request from {current_user}")
     return current_user
 
+
+@auth_app.get("/get_users", summary="Fetch all users")
+async def get_all_users(
+        current_user: Annotated[UserAuthed, Depends(jwt.get_current_user)],
+        session: inj.Session_t,
+) -> UserAcc:
+    result = await crud.get_all_users(session)
+    return result
 
 @auth_app.post("/token", response_model=Token, summary="OAuth2 Endpoint")
 async def jwt_login(

@@ -24,6 +24,9 @@ class UserAccount(Base):
 
     user_creation_date: Mapped[datetime] = mapped_column(nullable=False)
 
+    account_status: Mapped[bool] = mapped_column(default=False)
+    account_private: Mapped[bool] = mapped_column(default=False)
+
     token: Mapped[str] = mapped_column(nullable=True)
     auth_creation_date: Mapped[datetime] = mapped_column(nullable=True)
 
@@ -45,10 +48,19 @@ class UserCreate(UserLogin):
     email: EmailStr
 
 
-class UserAuthed(BaseModel):
+class UserAcc(BaseModel):
     user_id: int
     user_name: str
     first_name: str
     last_name: str
+    account_status: bool
+    account_private: bool
     email: EmailStr
+
+    class Config:
+        orm_mode = True
+
+class UserAuthed(UserAcc):
     token: str | None
+
+

@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.user_account import UserAccount, UserLogin, UserAuthed, UserCreate
+from models.user_account import UserAccount, UserLogin, UserAuthed, UserCreate, UserAcc
 from app_settings import Settings
 from backend import jwt_token_handler as jwt
 import dependency_injection as inj
@@ -15,7 +15,6 @@ async def login_user(session: inj.Session_t,
                      settings: inj.Session_t,
                      user: UserLogin
                      ) -> UserAuthed | None:
-
     try:
         user_db = await get_user(session, user.user_name)
     except:
@@ -85,8 +84,23 @@ async def get_user(session: AsyncSession, username: str) -> UserAccount:
         )
     return result
 
+async def get_all_users(session: AsyncSession) -> list[UserAcc]:
+    stmt = select(UserAccount)
 
-async def authenticate_user(session: AsyncSession, settings: Settings, username: str, password: str) -> UserAccount | bool:
+    result = await session.execute(stmt)
+    result = result.scalar_one_or_none()
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return result
+
+
+
+async def authenticate_user() -> UserAccount | bool:
     user = await get_user(session, username)
     if not user:
         return False
@@ -95,4 +109,3 @@ async def authenticate_user(session: AsyncSession, settings: Settings, username:
         return False
 
     return user
-
