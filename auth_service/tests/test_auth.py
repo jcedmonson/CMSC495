@@ -80,6 +80,11 @@ async def test_user_valid_creation(async_app_client: AsyncClient) -> None:
     )
     assert response.status_code == 201, response.text
 
+async def test_get_all_users_fail(async_app_client: AsyncClient) -> None:
+    response = await async_app_client.get("/get_users")
+    assert response.status_code == 401, response.text
+
+
 
 async def test_user_valid_token(async_app_client: AsyncClient) -> None:
     async with database.engine.begin() as conn:
@@ -115,3 +120,8 @@ async def test_user_valid_token(async_app_client: AsyncClient) -> None:
     headers = {"Authorization": f"Bearer {response.json().get('token')}"}
     response = await async_app_client.get("/user", headers=headers)
     assert response.status_code == 200, response.text
+
+    response = await async_app_client.get("/get_users", headers=headers)
+    assert response.status_code == 200, response.text
+    import ipdb
+    ipdb.set_trace()

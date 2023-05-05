@@ -75,7 +75,8 @@ async def user_jwt_get(
 async def get_all_users(
         current_user: Annotated[UserAuthed, Depends(jwt.get_current_user)],
         session: inj.Session_t,
-) -> UserAcc:
+) -> list[UserAcc]:
+
     result = await crud.get_all_users(session)
     return result
 

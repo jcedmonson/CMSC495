@@ -84,11 +84,11 @@ async def get_user(session: AsyncSession, username: str) -> UserAccount:
         )
     return result
 
-async def get_all_users(session: AsyncSession) -> list[UserAcc]:
+async def get_all_users(session: AsyncSession) -> list[UserAccount]:
     stmt = select(UserAccount)
 
     result = await session.execute(stmt)
-    result = result.scalar_one_or_none()
+    result = result.scalars().all()
 
     if result is None:
         raise HTTPException(
