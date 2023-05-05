@@ -6,12 +6,13 @@ from httpx import AsyncClient
 log = logging.getLogger("jwt_validation")
 
 
-async def jwt_check(authorization: str, oauth2: AsyncClient) -> None:
+async def jwt_check(authorization: str, oauth2: AsyncClient) -> dict:
     header = {"Authorization": authorization}
     try:
         await validate_jwt(header, oauth2)
     except:
         raise
+    return header
 
 
 async def validate_jwt(jwt_header: dict, oauth2: AsyncClient) -> bool:

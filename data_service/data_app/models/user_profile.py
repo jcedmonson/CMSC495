@@ -25,11 +25,18 @@ class UserProfile(Base):
     user_name: Mapped[str] = mapped_column(String(30), nullable=False)
 
 
-class UserAuthed(BaseModel):
+class User(BaseModel):
     user_id: int
     user_name: str
     first_name: str
     last_name: str
+
+    class Config:
+        orm_mode = True
+
+class UserAuthed(User):
     account_status: bool
     account_private: bool
     email: EmailStr
+
+
