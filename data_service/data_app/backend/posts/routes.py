@@ -7,7 +7,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import dependency_injection as inj
-from backend.jwt_validation import validate_jwt
+from backend.jwt_validation import jwt_check
 
 log = logging.getLogger("auth_routes")
 router = APIRouter(prefix="/posts")
@@ -18,9 +18,8 @@ async def fetch_test(authorization: Annotated[str | None, Header()],
                      oauth2: inj.Token_t,
                      settings: inj.Settings_t
                      ) -> dict:
-    header = {"Authorization": authorization}
     try:
-        await validate_jwt(header, oauth2)
+        await jwt_check(authorization, oauth2)
     except:
         raise
 
