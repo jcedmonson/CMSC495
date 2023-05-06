@@ -3,13 +3,11 @@ from datetime import datetime
 from sqlalchemy import String, LargeBinary
 from sqlalchemy.orm import mapped_column, Mapped
 
-from pydantic import BaseModel, EmailStr
-
 from models.base import Base
 
 
-class UserAccount(Base):
-    __tablename__ = "user_account"
+class UserProfile(Base):
+    __tablename__ = "user_profile"
 
     user_id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True,
                                          index=True)
@@ -31,40 +29,3 @@ class UserAccount(Base):
     auth_creation_date: Mapped[datetime] = mapped_column(nullable=True)
 
 
-class UserBase(BaseModel):
-    user_name: str
-
-
-class UserLogin(UserBase):
-    password: str
-
-    class Config:
-        orm_mode = True
-
-
-class UserCreate(UserLogin):
-    first_name: str
-    last_name: str
-    email: EmailStr
-
-
-class User(BaseModel):
-    user_id: int
-    user_name: str
-    first_name: str
-    last_name: str
-
-    class Config:
-        orm_mode = True
-
-class UserAcc(User):
-    account_status: bool
-    account_private: bool
-    email: EmailStr
-
-
-class UserAuthed(UserAcc):
-    token: str | None
-
-class UserSensitive(UserAuthed):
-    password_hash: bytes

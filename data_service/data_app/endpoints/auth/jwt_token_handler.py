@@ -7,7 +7,7 @@ from jose import JWTError, jwt
 
 from app_settings import Settings, oauth2_scheme, get_settings
 from endpoints import crud
-from models import user_account as user_model
+from models import padentic_models as user_model
 from models.jwt_model import TokenData, JWTDBUser, JWTUser
 import dependency_injection as inj
 
