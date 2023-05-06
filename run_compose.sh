@@ -1,5 +1,4 @@
 #!/usr/bin/env zsh
-docker volume create --name=auth_volume
 docker volume create --name=data_volume
 
 docker network inspect cmsc495_network >/dev/null 2>&1 || \

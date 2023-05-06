@@ -1,12 +1,9 @@
-import json
 from datetime import datetime, timedelta
 from typing import Annotated
 import logging
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
-from pydantic import BaseModel
 
 from app_settings import Settings, oauth2_scheme, get_settings
 from backend import crud

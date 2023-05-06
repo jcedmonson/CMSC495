@@ -1,6 +1,5 @@
-from sqlalchemy import String, select
+from sqlalchemy import String
 from sqlalchemy.orm import mapped_column, Mapped
-from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, EmailStr
 
 from .base import Base

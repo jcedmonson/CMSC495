@@ -9,11 +9,6 @@ services:
   #     - data_db
   #     - data-service
 
-  auth_db:
-    extends:
-      file: db-service/docker-compose.yml
-      service: auth_db
-
   data_db:
     extends:
       file: db-service/docker-compose.yml
@@ -25,13 +20,6 @@ services:
       service: data_service
     depends_on:
       - data_db
-
-  auth-service:
-    extends:
-      file: auth_service/docker-compose.yml
-      service: auth_service
-    depends_on:
-      - auth_db
 
 volumes:
   auth_volume:

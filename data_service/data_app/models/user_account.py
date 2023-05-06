@@ -5,7 +5,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 
 from pydantic import BaseModel, EmailStr
 
-from .base import Base
+from data_service.data_app.models.base import Base
 
 
 class UserAccount(Base):
@@ -30,10 +30,6 @@ class UserAccount(Base):
     token: Mapped[str] = mapped_column(nullable=True)
     auth_creation_date: Mapped[datetime] = mapped_column(nullable=True)
 
-    def as_dict(self) -> dict:
-        return {c.name: str(getattr(self, c.name)) for c in
-                self.__table__.columns}
-
 
 class UserBase(BaseModel):
     user_name: str
@@ -52,18 +48,23 @@ class UserCreate(UserLogin):
     email: EmailStr
 
 
-class UserAcc(BaseModel):
+class User(BaseModel):
     user_id: int
     user_name: str
     first_name: str
     last_name: str
-    account_status: bool
-    account_private: bool
-    email: EmailStr
 
     class Config:
         orm_mode = True
 
+class UserAcc(User):
+    account_status: bool
+    account_private: bool
+    email: EmailStr
+
 
 class UserAuthed(UserAcc):
     token: str | None
+
+class UserSensitive(UserAuthed):
+    password_hash: bytes

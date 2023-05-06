@@ -7,3 +7,8 @@ asyncpg
 pytest
 pytest-asyncio
 httpx
+ipdb
+bcrypt
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
