@@ -1,27 +1,46 @@
+import logging
+from functools import lru_cache
+
 from pydantic import BaseSettings
 
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer
+
+log = logging.getLogger("app.jwt")
+
+oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="/auth/token")
+
+@lru_cache()
+def get_settings():
+    """Settings cache"""
+    return Settings()
 
 class Settings(BaseSettings):
-    app_name: str = "City Park Auth Service"
+    app_name: str = "Data Service -- City Park"
     version: str = "0.0.1"
     postgres_db: str
     postgres_user: str
     postgres_password: str
     pgdata: str
+    pgport: int = 5432
     host: str
-    port: int = 5432
 
     drop_tables: bool = False
+    log_mode: str = "DEBUG"
 
-    class Config:
-        env_file = "../../db-service/data_db.env"
-        env_file_encoding = "UTF-8"
+    # JWT section
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+
+    pwd_context: CryptContext = CryptContext(schemes=["bcrypt"],
+                                             deprecated=["auto"])
 
     @property
     def dns(self) -> str:
         return (f"postgresql+asyncpg://"
                 f"{self.postgres_user}:{self.postgres_password}"
-                f"@{self.host}:{self.port}/{self.postgres_db}")
+                f"@{self.host}:{self.pgport}/{self.postgres_db}")
 
     @property
     def log_settings(self) -> dict:
@@ -37,7 +56,7 @@ class Settings(BaseSettings):
             },
             "handlers": {
                 "default": {
-                    "level": "INFO",
+                    "level": "DEBUG",
                     "formatter": "standard",
                     "class": "logging.StreamHandler",
                     "stream": "ext://sys.stdout"
@@ -56,6 +75,12 @@ class Settings(BaseSettings):
                     "propagate": True
                 },
 
+                "app.jwt": {
+                    "handlers": ["default"],
+                    "level": "DEBUG",
+                    "propagate": True
+                },
+
                 "app.auth_routes": {
                     "handlers": ["default"],
                     "level": "WARNING",
@@ -69,3 +94,4 @@ class Settings(BaseSettings):
                 },
             }
         }
+

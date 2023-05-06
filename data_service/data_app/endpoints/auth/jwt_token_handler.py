@@ -1,16 +1,13 @@
-import json
 from datetime import datetime, timedelta
 from typing import Annotated
 import logging
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
-from pydantic import BaseModel
 
 from app_settings import Settings, oauth2_scheme, get_settings
-from backend import crud
-from models.user_account import UserAuthed
+from endpoints import crud
+from models import user_account as user_model
 from models.jwt_model import TokenData, JWTDBUser, JWTUser
 import dependency_injection as inj
 
@@ -47,7 +44,8 @@ async def get_current_user(
         token: Annotated[str, Depends(oauth2_scheme)],
         session: inj.Session_t,
         settings: inj.Settings_t
-):
+) -> user_model.UserAuthed:
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -73,13 +71,15 @@ async def get_current_user(
     await session.commit()
     await session.refresh(user)
 
-    log.debug(f"User {UserAuthed(**user.__dict__)}")
+    log.debug(f"Authenticated user {user_model.UserAuthed(**user.__dict__)}")
 
-    return UserAuthed(**user.__dict__)
+    return user_model.UserAuthed(**user.__dict__)
 
 async def get_current_active_user(
-        current_user: Annotated[UserAuthed, Depends(get_current_user)]
+        current_user: Annotated[user_model.UserAuthed, Depends(get_current_user)]
 ):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+CurrentUser_t = Annotated[user_model.UserAuthed, Depends(get_current_user)]

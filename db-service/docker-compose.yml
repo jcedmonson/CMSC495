@@ -9,20 +9,7 @@ services:
     volumes:
       - data_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
     ports:
-      - 54320:5432
-    networks:
-      - cmsc495_network
-
-  auth_db:
-    image: postgres
-    env_file:
-      - $PWD/db-service/auth_db.env
-    platform: linux/amd64
-    container_name: auth_db
-    volumes:
-      - auth_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
-    ports:
-      - 54321:5432
+      - 54320:54320
     networks:
       - cmsc495_network
 

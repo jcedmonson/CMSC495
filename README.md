@@ -24,6 +24,7 @@ Team J³ decided to create a web application. The web application is internally 
 - nginx v1.23.3
     
 #### Back-end (Python):
+![Backend Auth](doc/auth_service_docs.png)
 - anyio v3.6.2
 - fastapi v0.95.0
 - pydantic v1.10.6

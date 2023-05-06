@@ -1,21 +1,24 @@
+import json
 from datetime import datetime, timedelta
+import logging
+from typing import Any, Sequence
 
 from fastapi import HTTPException, status
+from httpx import AsyncClient
 
-from sqlalchemy import select
+from sqlalchemy import Row, RowMapping, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from models.user_account import UserAccount, UserLogin, UserAuthed, UserCreate
-from app_settings import Settings
-from backend import jwt_token_handler as jwt
 import dependency_injection as inj
+from models import user_account as user_model
+from endpoints.auth import jwt_token_handler as jwt
+
+log = logging.getLogger("crud")
 
 
 async def login_user(session: inj.Session_t,
                      settings: inj.Session_t,
-                     user: UserLogin
-                     ) -> UserAuthed | None:
-
+                     user: user_model.UserLogin
+                     ) -> user_model.UserAuthed | None:
     try:
         user_db = await get_user(session, user.user_name)
     except:
@@ -43,14 +46,14 @@ async def login_user(session: inj.Session_t,
     await session.commit()
     await session.refresh(user_db)
 
-    return UserAuthed(**user_db.__dict__)
+    return user_model.UserAuthed(**user_db.__dict__)
 
 
 async def create_user(session: inj.Session_t,
                       settings: inj.Settings_t,
-                      user: UserCreate) -> UserAuthed | str:
-    stmt = select(UserAccount.user_name).where(
-        UserAccount.user_name == user.user_name or UserAccount.email == user.email)
+                      user: user_model.UserCreate) -> user_model.UserAuthed | str:
+    stmt = select(user_model.UserAccount.user_name).where(
+        user_model.UserAccount.user_name == user.user_name or user_model.UserAccount.email == user.email)
 
     result = await session.execute(stmt)
     result = result.scalar_one_or_none()
@@ -62,17 +65,18 @@ async def create_user(session: inj.Session_t,
     password_hash = jwt.get_password_hash(settings,
                                           new_user.pop("password"))
 
-    new_user = UserAccount(**new_user, password_hash=password_hash,
+    new_user = user_model.UserAccount(**new_user, password_hash=password_hash,
                            user_creation_date=datetime.now())
     session.add(new_user)
     await session.commit()
     await session.refresh(new_user)
 
-    return UserAuthed(**new_user.__dict__)
+
+    return user_model.UserAuthed(**new_user.__dict__)
 
 
-async def get_user(session: AsyncSession, username: str) -> UserAccount:
-    stmt = select(UserAccount).where(UserAccount.user_name == username)
+async def get_user(session: AsyncSession, username: str) -> user_model.UserSensitive:
+    stmt = select(user_model.UserAccount).where(user_model.UserAccount.user_name == username)
 
     result = await session.execute(stmt)
     result = result.scalar_one_or_none()
@@ -83,10 +87,27 @@ async def get_user(session: AsyncSession, username: str) -> UserAccount:
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     return result
 
 
-async def authenticate_user(session: AsyncSession, settings: Settings, username: str, password: str) -> UserAccount | bool:
+async def get_all_users(session: AsyncSession) -> Sequence[Row | RowMapping | Any]:
+    stmt = select(user_model.UserAccount)
+
+    result = await session.execute(stmt)
+    result = result.scalars().all()
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return result
+
+
+async def authenticate_user(session, settings, username, password) -> user_model.UserAccount | bool:
     user = await get_user(session, username)
     if not user:
         return False
@@ -95,4 +116,3 @@ async def authenticate_user(session: AsyncSession, settings: Settings, username:
         return False
 
     return user
-

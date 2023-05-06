@@ -26,13 +26,13 @@ class UserPost(Base):
     Attributes
     ----------
     id: int
-        Unique ID that represents the post made by the user
+        Unique ID that represents the posts made by the user
     user_id: int
-        ID of the user that made the post
+        ID of the user that made the posts
     post_date: datetime
-        Datetime of the post when it was made
+        Datetime of the posts when it was made
     post: str
-        Actual contents of the post limited to 2048 bytes
+        Actual contents of the posts limited to 2048 bytes
     """
     __tablename__ = "user_post"
 
@@ -49,14 +49,14 @@ class UserPost(Base):
 
 class PostComment(Base):
     """
-    Table represents all the comments made to a post
+    Table represents all the comments made to a posts
 
     Attributes
     ----------
     id: int
         Unique ID representing the comment made
     post_id: int
-        ID of the post the comment is commenting on
+        ID of the posts the comment is commenting on
     user_id: int
         ID of the user that created the comment
     comment_date: datetime
@@ -79,16 +79,16 @@ class PostComment(Base):
 class PostReaction(Base):
     """
     Table represents the reaction the user had made to a comment. There is
-    only one reaction a user can have to a post.
+    only one reaction a user can have to a posts.
 
     Attributes
     ----------
     post_id: int
-        ID of the post user is reacting to
+        ID of the posts user is reacting to
     user_id: int
-        User that is reacting to the post
+        User that is reacting to the posts
     reaction_date: datetime
-        The date the user has reacted to the post
+        The date the user has reacted to the posts
     reaction_id: int
         ID that defines the unicode/character that the user reacted with
     """
