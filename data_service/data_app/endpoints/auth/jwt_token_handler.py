@@ -7,8 +7,7 @@ from jose import JWTError, jwt
 
 from app_settings import Settings, oauth2_scheme, get_settings
 from endpoints import crud
-from models import padentic_models as user_model
-from models.jwt_model import TokenData, JWTDBUser, JWTUser
+from models import padentic_models as p_model
 import dependency_injection as inj
 
 log = logging.getLogger("app.jwt")
@@ -44,7 +43,7 @@ async def get_current_user(
         token: Annotated[str, Depends(oauth2_scheme)],
         session: inj.Session_t,
         settings: inj.Settings_t
-) -> user_model.UserAuthed:
+) -> p_model.UserAuthed:
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -57,7 +56,7 @@ async def get_current_user(
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = p_model.TokenData(username=username)
     except JWTError:
         raise credentials_exception
 
@@ -71,15 +70,15 @@ async def get_current_user(
     await session.commit()
     await session.refresh(user)
 
-    log.debug(f"Authenticated user {user_model.UserAuthed(**user.__dict__)}")
+    log.debug(f"Authenticated user {p_model.UserAuthed(**user.__dict__)}")
 
-    return user_model.UserAuthed(**user.__dict__)
+    return p_model.UserAuthed(**user.__dict__)
 
 async def get_current_active_user(
-        current_user: Annotated[user_model.UserAuthed, Depends(get_current_user)]
+        current_user: Annotated[p_model.UserAuthed, Depends(get_current_user)]
 ):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-CurrentUser_t = Annotated[user_model.UserAuthed, Depends(get_current_user)]
+CurrentUser_t = Annotated[p_model.UserAuthed, Depends(get_current_user)]

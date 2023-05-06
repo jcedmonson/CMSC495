@@ -6,7 +6,6 @@ from fastapi import APIRouter, HTTPException, status
 from endpoints import crud
 import dependency_injection as inj
 from models import padentic_models as p_models
-from models import jwt_model
 from . import jwt_token_handler as jwt
 
 log = logging.getLogger("auth_routes")
@@ -66,7 +65,7 @@ async def user_jwt_get(
 #
 
 
-@auth_route.post("/token", response_model=jwt_model.Token,
+@auth_route.post("/token", response_model=p_models.Token,
                  summary="OAuth2 Endpoint")
 async def jwt_login(
         form_data: inj.OAuthForm_t,
