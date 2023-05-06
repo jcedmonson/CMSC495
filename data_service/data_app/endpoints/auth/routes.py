@@ -3,14 +3,15 @@ from datetime import timedelta
 
 from fastapi import APIRouter, HTTPException, status
 
-from data_service.data_app.endpoints import crud
-from data_service.data_app import dependency_injection as inj
-from data_service.data_app.models import user_account as user_model
-from data_service.data_app.models import jwt_model
-import jwt_token_handler as jwt
+from endpoints import crud
+import dependency_injection as inj
+from models import user_account as user_model
+from models import jwt_model
+from . import jwt_token_handler as jwt
 
 log = logging.getLogger("auth_routes")
 auth_route = APIRouter(prefix="/auth")
+
 
 @auth_route.post("/login", summary="Authenticate user")
 async def login(
@@ -41,7 +42,7 @@ async def user_create(
 
 @auth_route.get("/user", summary="Validate users JWT token")
 async def user_jwt_get(
-        current_user: inj.CurrentUser_t) -> user_model.UserAuthed:
+        current_user: jwt.CurrentUser_t) -> user_model.UserAuthed:
     log.debug(f"Processing request from {current_user}")
     return current_user
 
@@ -65,7 +66,8 @@ async def user_jwt_get(
 #
 
 
-@auth_route.post("/token", response_model=jwt_model.Token, summary="OAuth2 Endpoint")
+@auth_route.post("/token", response_model=jwt_model.Token,
+                 summary="OAuth2 Endpoint")
 async def jwt_login(
         form_data: inj.OAuthForm_t,
         session: inj.Session_t,

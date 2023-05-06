@@ -5,7 +5,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 
 from pydantic import BaseModel, EmailStr
 
-from data_service.data_app.models.base import Base
+from models.base import Base
 
 
 class UserAccount(Base):

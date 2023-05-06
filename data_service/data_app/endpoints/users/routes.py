@@ -3,22 +3,23 @@ from typing import Annotated
 
 from fastapi import APIRouter, Header, status, HTTPException
 
-from data_service.data_app.models import user_account as user_model
-from data_service.data_app import dependency_injection as inj
-from data_service.data_app.endpoints import crud
+from models import user_account as user_model
+import dependency_injection as inj
+from endpoints.auth.jwt_token_handler import CurrentUser_t
+from endpoints import crud
 
 log = logging.getLogger("auth_routes_users")
-router = APIRouter(prefix="/users")
+user_routes = APIRouter(prefix="/users")
 
-@router.get("")
-async def fetch_all_users(_: inj.CurrentUser_t,
+@user_routes.get("")
+async def fetch_all_users(_: CurrentUser_t,
                           session: inj.Session_t) -> list[user_model.User]:
     return await crud.get_all_users(session)
 
 
-@router.get("/{user_name}")
+@user_routes.get("/{user_name}")
 async def get_user(user_name: str,
-                   _: inj.CurrentUser_t,
+                   _: CurrentUser_t,
                    session: inj.Session_t
                    ) -> user_model.User | None:
 

@@ -7,9 +7,9 @@ from httpx import AsyncClient
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from data_service.data_app import dependency_injection as inj
-from data_service.data_app.models import user_account as user_model
-from data_service.data_app.endpoints.auth import jwt_token_handler as jwt
+import dependency_injection as inj
+from models import user_account as user_model
+from endpoints.auth import jwt_token_handler as jwt
 
 log = logging.getLogger("crud")
 
@@ -45,7 +45,7 @@ async def login_user(session: inj.Session_t,
     await session.commit()
     await session.refresh(user_db)
 
-    return jwt.UserAuthed(**user_db.__dict__)
+    return user_model.UserAuthed(**user_db.__dict__)
 
 
 async def create_user(session: inj.Session_t,

@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 
-from auth.routes import
-from backend.posts.routes import router as post_router
-from backend.users.routes import router as users_router
+from .auth.routes import auth_route
+from .posts.routes import post_routes
+from .users.routes import user_routes
 
 routers = APIRouter()
-routers.include_router(post_router)
-routers.include_router(users_router)
+routers.include_router(auth_route)
+routers.include_router(post_routes)
+routers.include_router(user_routes)
