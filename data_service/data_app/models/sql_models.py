@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import String, LargeBinary
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy import String, LargeBinary, PrimaryKeyConstraint, ForeignKey
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from models.base import Base
 
@@ -29,3 +29,14 @@ class UserProfile(Base):
     auth_creation_date: Mapped[datetime] = mapped_column(nullable=True)
 
 
+class UserConnection(Base):
+    """
+    Table represents all the user_ids that are actual friends with each other
+    """
+    __tablename__ = "user_connection"
+    current_user: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
+    friend_with: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
+
+    __table_args__ = (
+        PrimaryKeyConstraint("current_user", "friend_with"),
+    )
