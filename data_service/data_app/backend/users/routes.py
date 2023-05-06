@@ -9,7 +9,6 @@ import dependency_injection as inj
 log = logging.getLogger("auth_routes_users")
 router = APIRouter(prefix="/users")
 
-
 @router.get("")
 async def fetch_all_users(authorization: Annotated[str | None, Header()],
                           oauth2: inj.Token_t,
@@ -41,5 +40,4 @@ async def get_user(user_name: str,
             detail="Query did not produce any results",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     return result.json()

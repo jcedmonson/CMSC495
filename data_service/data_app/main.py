@@ -28,9 +28,10 @@ async def startup() -> None:
     log.info("Database Initialized...")
 
 
-@data_app.get("/")
-async def root() -> dict:
-    return {"message": "Project set up properly"}
+@data_app.post("/sync_user")
+async def sync_new_user() -> None:
+    return None
+
 
 
 if __name__ == "__main__":

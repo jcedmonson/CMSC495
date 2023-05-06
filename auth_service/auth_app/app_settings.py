@@ -33,6 +33,8 @@ class Settings(BaseSettings):
     pwd_context: CryptContext = CryptContext(schemes=["bcrypt"],
                                              deprecated=["auto"])
 
+    data_endpoint: str = "http://data_service:8080"
+
     @property
     def dns(self) -> str:
         return (f"postgresql+asyncpg://"

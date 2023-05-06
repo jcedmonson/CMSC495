@@ -30,6 +30,10 @@ class UserAccount(Base):
     token: Mapped[str] = mapped_column(nullable=True)
     auth_creation_date: Mapped[datetime] = mapped_column(nullable=True)
 
+    def as_dict(self) -> dict:
+        return {c.name: str(getattr(self, c.name)) for c in
+                self.__table__.columns}
+
 
 class UserBase(BaseModel):
     user_name: str
@@ -60,7 +64,6 @@ class UserAcc(BaseModel):
     class Config:
         orm_mode = True
 
+
 class UserAuthed(UserAcc):
     token: str | None
-
-

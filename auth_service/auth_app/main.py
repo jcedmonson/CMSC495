@@ -63,6 +63,7 @@ async def user_create(
     log.debug(f"User {result.user_name} has been created")
 
 
+
 @auth_app.get("/user", summary="Validate users JWT token")
 async def user_jwt_get(
         current_user: Annotated[UserAuthed, Depends(jwt.get_current_user)]

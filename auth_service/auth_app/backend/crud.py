@@ -1,15 +1,21 @@
+import json
 from datetime import datetime, timedelta
+import logging
 
 from fastapi import HTTPException, status
+from httpx import AsyncClient
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.user_account import UserAccount, UserLogin, UserAuthed, UserCreate, UserAcc
+from models.user_account import UserAccount, UserLogin, UserAuthed, UserCreate, \
+    UserAcc
 from app_settings import Settings
 from backend import jwt_token_handler as jwt
 import dependency_injection as inj
 
+
+log = logging.getLogger("crud")
 
 async def login_user(session: inj.Session_t,
                      settings: inj.Session_t,
@@ -67,6 +73,16 @@ async def create_user(session: inj.Session_t,
     await session.commit()
     await session.refresh(new_user)
 
+    try:
+        async with AsyncClient(base_url=settings.data_endpoint) as client:
+            await client.post(
+                "/sync_user",
+                json=json.dumps(new_user.as_dict())
+            )
+
+    except Exception as error:
+        log.error(f"Crud sync error: {error}")
+
     return UserAuthed(**new_user.__dict__)
 
 
@@ -84,6 +100,7 @@ async def get_user(session: AsyncSession, username: str) -> UserAccount:
         )
     return result
 
+
 async def get_all_users(session: AsyncSession) -> list[UserAccount]:
     stmt = select(UserAccount)
 
@@ -97,7 +114,6 @@ async def get_all_users(session: AsyncSession) -> list[UserAccount]:
             headers={"WWW-Authenticate": "Bearer"},
         )
     return result
-
 
 
 async def authenticate_user() -> UserAccount | bool:
