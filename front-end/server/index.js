@@ -1,15 +1,15 @@
 
-const https = require('https')
+// const https = require('https')
 const express = require("express");
-const fs = require('fs');
+// const fs = require('fs');
 const history = require('connect-history-api-fallback');
 
 const port = 4000
 
-const options = {
-  key: fs.readFileSync('certs/key.pem'),
-  cert: fs.readFileSync('certs/cert.pem'),
-}
+// const options = {
+//   key: fs.readFileSync('certs/key.pem'),
+//   cert: fs.readFileSync('certs/cert.pem'),
+// }
 
 const app = express();
 
