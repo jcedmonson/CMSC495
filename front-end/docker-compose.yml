@@ -1,13 +1,13 @@
 version: '3.8'
 services:
-  nginx:
+  express:
     build:
       context: .
       dockerfile: Dockerfile
     platform: linux/amd64
-    container_name: nginx
+    container_name: express
     ports:
-      - 4000:80
+      - 4000:4000
     networks:
       - cmsc495_network
 

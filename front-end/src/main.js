@@ -1,13 +1,15 @@
 /**
- * main.js
- *
- * Bootstraps Vuetify and other plugins then mounts the App`
+ * @module main
+ * @description The entrypoint to the web application, installs plugins,
+ * and handles token checking per route.
+ * @author Jacob Edmonson
  */
 
 // Components
 import App from "./App.vue";
 import router from "@/router";
-import { userData } from "@/store/user";
+import { userStore } from "@/store/user";
+import { tokenCheck } from "@/scripts/user";
 
 // Composables
 import { createApp } from "vue";
@@ -19,17 +21,19 @@ const app = createApp(App);
 
 registerPlugins(app);
 
-const user = userData();
+const user = userStore();
 
 router.beforeEach((to, from, next) => {
-  console.log(user.loggedIn);
+  const token = sessionStorage.getItem("city_park_token");
+  
   if (user.loggedIn) {
     document.title = to.name;
     next();
   } else {
+    // if the store does not annotate the user as logged in,
     if (to.path != "/login") {
-      document.title = to.name;
-      router.push("/login");
+      // check token
+      tokenCheck(token)
     } else {
       document.title = to.name;
       next();

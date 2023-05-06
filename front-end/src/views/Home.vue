@@ -1,23 +1,41 @@
 <template>
-  <v-container class="fill-height appBackground" fluid>
-    <v-app-bar title="App Name Here">
-      <template v-slot:prepend>
-          <v-app-bar-nav-icon></v-app-bar-nav-icon>
-        </template>
-        <v-avatar>SU</v-avatar>
-    </v-app-bar>
+  <v-container class="" fluid>
+    <v-container>
+      <v-row>
+        <v-col xs="12" sm="12" md="3" lg="3" xl="4">
+          <home-friends style="max-width: 400px"></home-friends>
+        </v-col>
+        <v-col xs="12" sm="12" md="6" lg="6" xl="4">
+          <home-create-post class="ml-5 mr-5 mb-5"></home-create-post>
+          <home-posts
+            class="ml-5 mr-5 mb-5"
+            v-for="(post, idx) in posts.currentPosts"
+            :key="idx"
+            :title="'@' + post.username"
+            :content="post.content"
+            :id="post.postId"
+          ></home-posts>
+        </v-col>
+        <v-col xs="12" sm="12" md="3" lg="3" xl="4"></v-col>
+      </v-row>
+    </v-container>
   </v-container>
 </template>
 
 <script setup>
-import { userData } from '@/store/user'
+/**
+ * @file Bootstraps Vuetify and other plugins then mounts the App
+ */
 
-const user = userData();
+import { userStore } from "@/store/user";
+import { postStore } from "@/store/posts";
+
+import HomePosts from "@/components/home/HomePosts.vue";
+import HomeCreatePost from "@/components/home/HomeCreatePost.vue";
+import HomeFriends from "@/components/home/HomeFriends.vue";
+
+const user = userStore();
+const posts = postStore();
+// posts.getPosts();
 </script>
-
-<style scoped>
-.appBackground{
-  background: rgb(1,130,255);
-  background: radial-gradient(circle, #0182ff 0%, rgba(38,50,56,1) 100%);
-}
-</style>
+<style scoped></style>
