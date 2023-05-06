@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 log = logging.getLogger("app.jwt")
 
-oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 @lru_cache()
 def get_settings():

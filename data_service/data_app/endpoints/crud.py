@@ -1,11 +1,12 @@
 import json
 from datetime import datetime, timedelta
 import logging
+from typing import Any, Sequence
 
 from fastapi import HTTPException, status
 from httpx import AsyncClient
 
-from sqlalchemy import select
+from sqlalchemy import Row, RowMapping, select
 from sqlalchemy.ext.asyncio import AsyncSession
 import dependency_injection as inj
 from models import user_account as user_model
@@ -86,10 +87,11 @@ async def get_user(session: AsyncSession, username: str) -> user_model.UserSensi
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     return result
 
 
-async def get_all_users(session: AsyncSession) -> list[user_model.UserAccount]:
+async def get_all_users(session: AsyncSession) -> Sequence[Row | RowMapping | Any]:
     stmt = select(user_model.UserAccount)
 
     result = await session.execute(stmt)
@@ -101,6 +103,7 @@ async def get_all_users(session: AsyncSession) -> list[user_model.UserAccount]:
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     return result
 
 

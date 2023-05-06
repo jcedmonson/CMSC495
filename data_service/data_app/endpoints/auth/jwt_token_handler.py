@@ -45,6 +45,7 @@ async def get_current_user(
         session: inj.Session_t,
         settings: inj.Settings_t
 ) -> user_model.UserAuthed:
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -70,7 +71,7 @@ async def get_current_user(
     await session.commit()
     await session.refresh(user)
 
-    log.debug(f"User {user_model.UserAuthed(**user.__dict__)}")
+    log.debug(f"Authenticated user {user_model.UserAuthed(**user.__dict__)}")
 
     return user_model.UserAuthed(**user.__dict__)
 
