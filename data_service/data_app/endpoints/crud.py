@@ -108,13 +108,11 @@ async def get_all_users(session: AsyncSession) -> Sequence[
     return result
 
 
-async def get_connections(session: AsyncSession,
-                          user_id: int) -> list[p_model.User]:
-
+async def get_user_by_id(session: AsyncSession,
+                         user_id: int) -> p_model.User:
     stmt = select(UserProfile).where(UserProfile.user_id == user_id)
     result = await session.execute(stmt)
     result = result.scalar_one_or_none()
-
 
     if result is None:
         raise HTTPException(
@@ -122,11 +120,49 @@ async def get_connections(session: AsyncSession,
             detail="User ID not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    return result
 
+async def get_connections(session: AsyncSession,
+                          user_id: int) -> list[p_model.User]:
+    # If successful, the user exists
+    try:
+        _ = get_user_by_id(session, user_id)
+    except:
+        raise
 
-    stmt = select(UserProfile, UserConnection).join(UserProfile.connections)
+    stmt = select(UserConnection).where(UserConnection.current_user_id == user_id)
     result = await session.execute(stmt)
-    return result.scalars().all()
+    return [p_model.User(**i) for i in result.scalars().all() ]
+
+async def set_connection(session: AsyncSession,
+                         current_user: p_model.UserAuthed,
+                         user_to_follow: p_model.User) -> None:
+
+    # If this is successful, then the user being added is an actual user
+    try:
+        _ = get_user_by_id(session, user_to_follow.user_id)
+    except:
+        raise
+
+    # Fetch previous connections for testing later
+    prev = await get_connections(session, current_user.user_id)
+
+    # Add the connection between users
+    session.add(UserConnection(current_user_id=current_user.user_id, follows_user_id=user_to_follow.user_id))
+    await session.commit()
+
+    # Query to ensure that the connection was added
+    stmt = select(UserConnection).where(UserConnection.current_user_id == current_user.user_id)
+    result = await session.execute(stmt)
+    result = result.scalars().all()
+
+    if len(prev) == len(result):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to add connection between users",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
 
 async def authenticate_user(session, settings, username,
                             password) -> UserProfile | bool:

@@ -15,6 +15,18 @@ class MockUser:
     last_name: str
     password: str
     email: str
+    user_id: int | None = None
+    jwt_token: dict | None = None
+
+    @property
+    def to_json(self) -> dict:
+        return {
+            "user_id": self.user_id,
+            "user_name": self.user_name,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+        }
+
 
 MOCK_USERS = [
     MockUser("johncena", "john", "cena", "can't see my password", "invi@gmail.com"),
@@ -41,6 +53,7 @@ def event_loop():
 async def async_app_client(event_loop):
     async with AsyncClient(app=data_app,
                            base_url="http://127.0.0.1:8080") as client:
+
         async with database.engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
 
@@ -87,11 +100,29 @@ async def user_jwt_token(async_app_client):
 @pytest.fixture(scope="module")
 async def pop_client(async_app_client):
     for user in MOCK_USERS:
+        # Create the user
         response = await async_app_client.post(
             "/auth/user",
             json=user.__dict__
         )
         assert response.status_code == 201, response.text
 
+        # Authenticate user to extract the jwt token
+        response = await async_app_client.post(
+            "/auth/login",
+            json={
+                "user_name":user.user_name,
+                "password": user.password,
+            },
+        )
+        assert response.status_code == 200
+
+        # save the jwt token into the object
+        user.jwt_token = {"Authorization": f"Bearer {response.json().get('token')}"}
+        user.user_id = response.json().get("user_id")
+
+        # Authenticate with it to ensure that it works
+        response = await async_app_client.get("/auth/user", headers=user.jwt_token)
+        assert response.status_code == 200, response.text
 
     yield async_app_client

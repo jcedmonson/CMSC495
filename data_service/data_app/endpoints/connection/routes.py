@@ -12,10 +12,10 @@ conn_routes = APIRouter(prefix="/connections")
 
 
 @conn_routes.get("/user/{user_id}")
-async def get_user(user_id: int,
-                   _: CurrentUser_t,
-                   session: inj.Session_t
-                   ) -> list[p_model.User] | None:
+async def get_users_connections(
+        user_id: int,
+        _: CurrentUser_t,
+        session: inj.Session_t) -> list[p_model.User] | None:
     try:
         return await crud.get_connections(session, user_id)
     except:
@@ -24,3 +24,12 @@ async def get_user(user_id: int,
             detail="Username not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+@conn_routes.post("/user", status_code=201)
+async def create_connection(
+        user_to_add: p_model.User,
+        current_user: CurrentUser_t,
+        session: inj.Session_t) -> None:
+
+    await crud.set_connection(session, current_user, user_to_add)

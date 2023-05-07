@@ -36,14 +36,14 @@ class UserProfile(Base):
 class UserConnection(Base):
     __tablename__ = "user_connection"
     current_user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
-    friend_with_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
+    follows_user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
 
     current_user = relationship("UserProfile", foreign_keys="[UserConnection.current_user_id]")
-    friend_with = relationship("UserProfile", foreign_keys="[UserConnection.friend_with_id]")
+    follows_user = relationship("UserProfile", foreign_keys="[UserConnection.follows_user_id]")
 
 
     __table_args__ = (
-        PrimaryKeyConstraint("current_user_id", "friend_with_id"),
+        PrimaryKeyConstraint("current_user_id", "follows_user_id"),
     )
 
 # class UserConnection(Base):
