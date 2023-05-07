@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     pgport: int = 5432
     host: str
 
-    drop_tables: bool = False
+    drop_tables: bool = True
     log_mode: str = "DEBUG"
 
     # JWT section
