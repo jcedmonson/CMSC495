@@ -110,29 +110,46 @@ async def get_all_users(session: AsyncSession) -> Sequence[
 
 async def get_user_by_id(session: AsyncSession,
                          user_id: int) -> p_model.User:
+
+    log.debug(f"Fetching user {user_id}")
+
     stmt = select(UserProfile).where(UserProfile.user_id == user_id)
     result = await session.execute(stmt)
     result = result.scalar_one_or_none()
 
     if result is None:
+        log.debug(f"Unable to fetch user {user_id}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User ID not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    log.debug(f"Fetched user {result}")
     return result
 
 async def get_connections(session: AsyncSession,
-                          user_id: int) -> list[p_model.User]:
+                          user_id: int) -> list[UserProfile]:
     # If successful, the user exists
     try:
-        _ = get_user_by_id(session, user_id)
+        _ = await get_user_by_id(session, user_id)
     except:
         raise
 
+    # Select all the connection IDs that the user has
     stmt = select(UserConnection).where(UserConnection.current_user_id == user_id)
     result = await session.execute(stmt)
-    return [p_model.User(**i) for i in result.scalars().all() ]
+
+    # get the ID of the users the user has a connection with
+    connections = [i.follows_user_id for i in result.scalars().all() ]
+    log.debug(f"User {user_id} has {len(connections)} connections")
+
+    # Fetch all the users from the given IDs
+    stmt = select(UserProfile).where(UserProfile.user_id.in_(connections))
+    result = await session.execute(stmt)
+    connections = result.scalars().all()
+
+    return connections
 
 async def set_connection(session: AsyncSession,
                          current_user: p_model.UserAuthed,
@@ -140,7 +157,7 @@ async def set_connection(session: AsyncSession,
 
     # If this is successful, then the user being added is an actual user
     try:
-        _ = get_user_by_id(session, user_to_follow.user_id)
+        _ = await get_user_by_id(session, user_to_follow.user_id)
     except:
         raise
 
@@ -148,20 +165,29 @@ async def set_connection(session: AsyncSession,
     prev = await get_connections(session, current_user.user_id)
 
     # Add the connection between users
-    session.add(UserConnection(current_user_id=current_user.user_id, follows_user_id=user_to_follow.user_id))
-    await session.commit()
+    try:
+        session.add(UserConnection(current_user_id=current_user.user_id, follows_user_id=user_to_follow.user_id))
+        await session.commit()
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Connection between users already exists",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
 
     # Query to ensure that the connection was added
-    stmt = select(UserConnection).where(UserConnection.current_user_id == current_user.user_id)
-    result = await session.execute(stmt)
-    result = result.scalars().all()
+    result = await get_connections(session, current_user.user_id)
+
 
     if len(prev) == len(result):
+        log.error(f"Failed to add connection {current_user.user_id} -> {user_to_follow.user_id}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to add connection between users",
             headers={"WWW-Authenticate": "Bearer"}
         )
+
+    log.debug(f"Connection {current_user.user_id} -> {user_to_follow.user_id} made")
 
 
 async def authenticate_user(session, settings, username,

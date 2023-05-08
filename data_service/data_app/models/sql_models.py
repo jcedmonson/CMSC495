@@ -46,25 +46,3 @@ class UserConnection(Base):
         PrimaryKeyConstraint("current_user_id", "follows_user_id"),
     )
 
-# class UserConnection(Base):
-#     """
-#     Table represents all the user_ids that are actual friends with each other
-#     """
-#     __tablename__ = "user_connection"
-#     connection_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-#     current_user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"), nullable=False)
-#     friend_with_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"), nullable=False)
-#
-#     current_user: relationship("UserProfile", foreign_keys=[current_user_id])
-#     friend_with: relationship("UserProfile", foreign_keys=[friend_with_id])
-#
-#     # __table_args__ = (
-#     #     PrimaryKeyConstraint("current_user_id", "friend_with_id"),
-#     # )
-#
-# association_table = Table(
-#     "user_connection",
-#     Base.metadata,
-#     Column("current_user_id", ForeignKey("user_profile.user_id"), primary_key=True),
-#     Column("friend_with_id", ForeignKey("user_profile.user_id"), primary_key=True),
-# )

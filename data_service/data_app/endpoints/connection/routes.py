@@ -7,7 +7,7 @@ import dependency_injection as inj
 from endpoints.auth.jwt_token_handler import CurrentUser_t
 from endpoints import crud
 
-log = logging.getLogger("auth_routes_users")
+log = logging.getLogger("endpoint.connection")
 conn_routes = APIRouter(prefix="/connections")
 
 
@@ -16,9 +16,16 @@ async def get_users_connections(
         user_id: int,
         _: CurrentUser_t,
         session: inj.Session_t) -> list[p_model.User] | None:
+
+    log.debug(f"Querying for user {user_id}")
+
     try:
-        return await crud.get_connections(session, user_id)
+        a = await crud.get_connections(session, user_id)
+        return a
     except:
+
+        log.error(f"User {user_id} was not found")
+
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Username not found",
@@ -32,4 +39,8 @@ async def create_connection(
         current_user: CurrentUser_t,
         session: inj.Session_t) -> None:
 
-    await crud.set_connection(session, current_user, user_to_add)
+    log.debug(f"Creating connection for {current_user.user_id} to {user_to_add.user_id}")
+    try:
+        await crud.set_connection(session, current_user, user_to_add)
+    except:
+        raise

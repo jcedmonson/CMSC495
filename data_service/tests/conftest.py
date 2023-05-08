@@ -53,6 +53,7 @@ def event_loop():
 async def async_app_client(event_loop):
     async with AsyncClient(app=data_app,
                            base_url="http://127.0.0.1:8080") as client:
+    # async with AsyncClient(base_url="http://127.0.0.1:8080") as client:
 
         async with database.engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)

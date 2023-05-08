@@ -8,7 +8,7 @@ import dependency_injection as inj
 from models import padentic_models as p_models
 from . import jwt_token_handler as jwt
 
-log = logging.getLogger("auth_routes")
+log = logging.getLogger("endpoint.auth")
 auth_route = APIRouter(prefix="/auth")
 
 
