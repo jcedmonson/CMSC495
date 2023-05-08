@@ -1,15 +1,15 @@
 from datetime import datetime
 
-from sqlalchemy import String, LargeBinary
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy import String, LargeBinary, PrimaryKeyConstraint, \
+    ForeignKey, Table, Column
 
-from pydantic import BaseModel, EmailStr
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from models.base import Base
 
 
-class UserAccount(Base):
-    __tablename__ = "user_account"
+class UserProfile(Base):
+    __tablename__ = "user_profile"
 
     user_id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True,
                                          index=True)
@@ -30,41 +30,19 @@ class UserAccount(Base):
     token: Mapped[str] = mapped_column(nullable=True)
     auth_creation_date: Mapped[datetime] = mapped_column(nullable=True)
 
+    # Creates a one-to-many relationship with the connections table
+    connections: Mapped[list["UserConnection"]] = relationship("UserConnection", foreign_keys="UserConnection.current_user_id", back_populates="current_user")
 
-class UserBase(BaseModel):
-    user_name: str
+class UserConnection(Base):
+    __tablename__ = "user_connection"
+    current_user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
+    follows_user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
 
-
-class UserLogin(UserBase):
-    password: str
-
-    class Config:
-        orm_mode = True
-
-
-class UserCreate(UserLogin):
-    first_name: str
-    last_name: str
-    email: EmailStr
+    current_user = relationship("UserProfile", foreign_keys="[UserConnection.current_user_id]")
+    follows_user = relationship("UserProfile", foreign_keys="[UserConnection.follows_user_id]")
 
 
-class User(BaseModel):
-    user_id: int
-    user_name: str
-    first_name: str
-    last_name: str
+    __table_args__ = (
+        PrimaryKeyConstraint("current_user_id", "follows_user_id"),
+    )
 
-    class Config:
-        orm_mode = True
-
-class UserAcc(User):
-    account_status: bool
-    account_private: bool
-    email: EmailStr
-
-
-class UserAuthed(UserAcc):
-    token: str | None
-
-class UserSensitive(UserAuthed):
-    password_hash: bytes

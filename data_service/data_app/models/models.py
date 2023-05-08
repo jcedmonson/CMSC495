@@ -6,19 +6,6 @@ from sqlalchemy.orm import relationship, mapped_column, Mapped
 from .base import Base
 
 
-class UserFriends(Base):
-    """
-    Table represents all the user_ids that are actual friends with each other
-    """
-    __tablename__ = "user_friend"
-    current_user: Mapped[int] = mapped_column(ForeignKey("user_profile.id"))
-    friend_with: Mapped[int] = mapped_column(ForeignKey("user_profile.id"))
-
-    __table_args__ = (
-        PrimaryKeyConstraint("current_user", "friend_with"),
-    )
-
-
 class UserPost(Base):
     """
     Table represents the actual posts that a user has made

@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     pgport: int = 5432
     host: str
 
-    drop_tables: bool = False
+    drop_tables: bool = True
     log_mode: str = "DEBUG"
 
     # JWT section
@@ -50,7 +50,7 @@ class Settings(BaseSettings):
             "formatters": {
                 "standard": {
                     "()": "uvicorn.logging.DefaultFormatter",
-                    "fmt": "%(levelprefix)s [%(asctime)s] [%(name)s] - %(message)s",
+                    "fmt": "%(levelprefix)s [%(asctime)s] [Line:%(lineno)d][Func:%(funcName)s] [%(name)s] - %(message)s",
                     "datefmt": "%Y-%m-%d %H:%M:%S",
                 }
             },
@@ -77,13 +77,25 @@ class Settings(BaseSettings):
 
                 "app.jwt": {
                     "handlers": ["default"],
+                    "level": "INFO",
+                    "propagate": True
+                },
+
+                "endpoint.auth": {
+                    "handlers": ["default"],
+                    "level": "WARNING",
+                    "propagate": True
+                },
+
+                "endpoint.connection": {
+                    "handlers": ["default"],
                     "level": "DEBUG",
                     "propagate": True
                 },
 
-                "app.auth_routes": {
+                "crud": {
                     "handlers": ["default"],
-                    "level": "WARNING",
+                    "level": "DEBUG",
                     "propagate": True
                 },
 
