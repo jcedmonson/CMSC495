@@ -6,6 +6,8 @@ from fastapi import HTTPException, status
 
 from sqlalchemy import Row, RowMapping, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
 import dependency_injection as inj
 from models.sql_models import UserProfile, UserConnection, UserPost
 from models import padentic_models as p_model
@@ -159,10 +161,45 @@ async def get_connections(session: AsyncSession,
 
     return connections
 
-async def get_posts(session: AsyncSession, current_user: p_model.UserAuthed):
-    stmt = select(UserPost).where(UserPost.user_id == current_user.user_id)
+async def get_posts(session: AsyncSession, current_user: p_model.UserAuthed) -> list[p_model.UserPost]:
+    stmt = select(UserProfile).where(UserProfile.user_id == current_user.user_id).options(selectinload(UserProfile.posts))
     result = await session.execute(stmt)
-    return result.scalars().all()
+    user = result.scalar_one_or_none()
+
+    if user is None or not user.posts:
+        return []
+
+    posts = []
+    user_model = p_model.User.from_orm(user)
+    for post in user.posts:
+        """
+    post_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    post_date: Mapped[datetime]
+    content: Mapped[str] = mapped_column(String(2048))
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
+    user_post: Mapped["UserProfile"] = relationship(back_populates="posts")
+        """
+
+        post = p_model.UserPost(
+            user_id=user_model.user_id,
+            post_id=post.post_id,
+            post_date=post.post_date,
+            user_name=user_model.user_name,
+            first_name=user_model.first_name,
+            last_name=user_model.last_name,
+            content=post.content,
+        )
+        posts.append(post)
+    return posts
+
+async def set_post(session: AsyncSession, current_user: p_model.UserAuthed, post_body: str):
+    post = UserPost(content=post_body,
+                    user_id=current_user.user_id,
+                    post_date=datetime.utcnow())
+    session.add(post)
+    await session.commit()
+
 
 async def set_connection(session: AsyncSession,
                          current_user: p_model.UserAuthed,
