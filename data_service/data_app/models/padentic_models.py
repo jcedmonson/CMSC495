@@ -56,3 +56,6 @@ class JWTUser(BaseModel):
 
 class JWTDBUser(JWTUser):
     hashed_password: str
+
+class UserPostBody(BaseModel):
+    body: str

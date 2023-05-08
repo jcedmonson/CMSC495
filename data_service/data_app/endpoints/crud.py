@@ -7,7 +7,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import Row, RowMapping, select
 from sqlalchemy.ext.asyncio import AsyncSession
 import dependency_injection as inj
-from models.sql_models import UserProfile, UserConnection
+from models.sql_models import UserProfile, UserConnection, UserPost
 from models import padentic_models as p_model
 from endpoints.auth import jwt_token_handler as jwt
 
@@ -158,6 +158,11 @@ async def get_connections(session: AsyncSession,
     connections = result.scalars().all()
 
     return connections
+
+async def get_posts(session: AsyncSession, current_user: p_model.UserAuthed):
+    stmt = select(UserPost).where(UserPost.user_id == current_user.user_id)
+    result = await session.execute(stmt)
+    return result.scalars().all()
 
 async def set_connection(session: AsyncSession,
                          current_user: p_model.UserAuthed,
