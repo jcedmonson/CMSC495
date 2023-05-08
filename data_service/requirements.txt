@@ -12,3 +12,4 @@ bcrypt
 python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
+Faker

@@ -105,7 +105,7 @@ class Settings(BaseSettings):
 
                 "endpoint.connection": {
                     "handlers": ["default"],
-                    "level": "DEBUG",
+                    "level": "INFO",
                     "propagate": True
                 },
 
@@ -117,7 +117,7 @@ class Settings(BaseSettings):
 
                 "crud": {
                     "handlers": ["default"],
-                    "level": "DEBUG",
+                    "level": "INFO",
                     "propagate": True
                 },
 
