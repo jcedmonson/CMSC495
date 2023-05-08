@@ -16,9 +16,9 @@ user_routes = APIRouter(prefix="/users")
 async def get_user(user_name: str,
                    _: CurrentUser_t,
                    session: inj.Session_t
-                   ) -> p_model.User | None:
+                   ) -> list[p_model.User] | None:
     try:
-        return await crud.get_user(session, user_name)
+        return await crud.get_user(session, user_name, exact_match=False)
     except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
