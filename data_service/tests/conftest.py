@@ -183,4 +183,17 @@ async def populate_connections(async_client, populate_users):
 
 @pytest.fixture(scope="session")
 async def populate_posts(async_client, populate_connections):
-    pass
+    for _ in range(0, 100):
+        user = choice(MOCK_USERS)
+
+        response = await async_client.post(
+            "/posts",
+            json={"content": user.comment},
+            headers=user.jwt_token
+        )
+
+        assert response.status_code == 201, (user, response.text)
+
+@pytest.fixture(scope="function")
+async def user():
+    yield choice(MOCK_USERS)
