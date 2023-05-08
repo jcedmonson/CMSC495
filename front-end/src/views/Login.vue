@@ -1,11 +1,11 @@
 <template>
-  <v-container class="fill-height loginBackground" fluid>
+  <v-container class="login fill-height loginBackground" fluid>
     <v-row>
-      <v-col xs="2" sm="4" md="4" lg="4" xl="5"></v-col>
-      <v-col xs="8" sm="6" md="6" lg="4" xl="2">
-        <LoginCard class="mb-3"
+      <v-col class="d-none d-md-block"></v-col>
+      <v-col lg="4" xl="3">
+        <LoginCard
       /></v-col>
-      <v-col xs="2" sm="4" md="4" lg="4" xl="5"></v-col>
+      <v-col class="d-none d-md-block"></v-col>
     </v-row>
   </v-container>
 </template>
@@ -18,6 +18,8 @@ import LoginCard from "@/components/login/LoginCard.vue";
 .loginBackground {
   background: radial-gradient(circle, #5c6bc0 0%, rgba(38, 50, 56, 1) 100%);
 }
+
+
 
 /* .loginBackground{
   background: #3F51B5;

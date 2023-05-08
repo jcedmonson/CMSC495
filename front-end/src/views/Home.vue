@@ -1,24 +1,22 @@
 <template>
   <v-container class="" fluid>
-    <v-container>
-      <v-row>
-        <v-col xs="12" sm="12" md="3" lg="3" xl="4">
-          <home-friends style="max-width: 400px"></home-friends>
-        </v-col>
-        <v-col xs="12" sm="12" md="6" lg="6" xl="4">
-          <home-create-post class="ml-5 mr-5 mb-5"></home-create-post>
-          <home-posts
-            class="ml-5 mr-5 mb-5"
-            v-for="(post, idx) in posts.currentPosts"
-            :key="idx"
-            :title="'@' + post.username"
-            :content="post.content"
-            :id="post.postId"
-          ></home-posts>
-        </v-col>
-        <v-col xs="12" sm="12" md="3" lg="3" xl="4"></v-col>
-      </v-row>
-    </v-container>
+    <v-row>
+      <v-col class="d-none d-md-block">
+        <!-- <home-friends style="max-width: 400px"></home-friends> -->
+      </v-col>
+      <v-col xs="12" sm="12" md="6" lg="6" xl="4">
+        <home-create-post class="ml-5 mr-5 mb-5"></home-create-post>
+        <home-posts
+          class="ml-5 mr-5 mb-5"
+          v-for="(post, idx) in posts.currentPosts"
+          :key="idx"
+          :title="'@' + post.username"
+          :content="post.content"
+          :id="post.postId"
+        ></home-posts>
+      </v-col>
+      <v-col class="d-none d-md-block"></v-col>
+    </v-row>
   </v-container>
 </template>
 
