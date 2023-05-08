@@ -73,20 +73,28 @@ async def create_user(session: inj.Session_t,
     return p_model.UserAuthed(**new_user.__dict__)
 
 
-async def get_user(session: AsyncSession,
-                   username: str) -> p_model.UserSensitive:
-    stmt = select(UserProfile).where(
-        UserProfile.user_name == username)
+async def get_user(session: AsyncSession, username: str, exact_match: bool=True):
+
+    stmt = select(UserProfile).filter(UserProfile.user_name.ilike(f"%{username}%"))
 
     result = await session.execute(stmt)
-    result = result.scalar_one_or_none()
+    result = result.scalars().all()
 
-    if result is None:
+    if not result:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    if exact_match:
+        if len(result) > 1:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Could not find an exact query match",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return result[0]
 
     return result
 
