@@ -7,7 +7,10 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 
+import { userStore } from "@/store/user.js"
+
 const USERS_SERVICE = import.meta.env.VITE_USERS_SERVICE;
+const CONNECTIONS_SERVICE = import.meta.env.VITE_CONNECTIONS_SERVICE;
 
 /**
  * Post Store
@@ -17,7 +20,8 @@ const USERS_SERVICE = import.meta.env.VITE_USERS_SERVICE;
 export const connectionsStore = defineStore("connections", {
   state: () => {
     return {
-        users: []
+      users: [],
+      connections: [],
     };
   },
   actions: {
@@ -40,8 +44,8 @@ export const connectionsStore = defineStore("connections", {
 
     /**
      * Fetches all of the app's users.
-     * @function viewPost
-     * @memberof store.posts
+     * @function getUsers
+     * @memberof store.connections
      */
     getUsers() {
       console.log(USERS_SERVICE);
@@ -51,14 +55,37 @@ export const connectionsStore = defineStore("connections", {
     },
 
     /**
-     * Fetches a user by username.
-     * @function viewPost
-     * @memberof store.posts
+     * Fetches users based on username.
+     * @function getUser
+     * @memberof store.connections
      */
-    getUser(name) {
+    searchUsers(name) {
       axios.get(`${USERS_SERVICE}/${name}`).then((resp) => {
-        console.log(resp.data);
+        this.users = resp.data
+      }).catch((e) => {this.users = []});
+    },
+
+    /**
+     * Fetches the connections for a specific user.
+     * @function getConnections
+     * @memberof store.connections
+     */
+    getConnections() {
+      const user = userStore();
+      axios.get(`${CONNECTIONS_SERVICE}/user/${user.user_id}`).then((resp) => {
+        this.connections = resp.data;
       });
+    },
+
+    /**
+     * Adds a connection for a specific user.
+     * @function addConnection
+     * @memberof store.connections
+     */
+    addConnection(userObj){
+      axios.post(`${CONNECTIONS_SERVICE}/user`, userObj).then((resp) => {
+        this.connections.push(userObj)
+      })
     },
   },
 });

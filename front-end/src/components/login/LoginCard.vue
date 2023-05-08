@@ -111,7 +111,6 @@
         class="mt-3"
         block
         color="secondary"
-        :loading="user.loading"
         @click="user.newUser = false"
         >Cancel</v-btn
       >
