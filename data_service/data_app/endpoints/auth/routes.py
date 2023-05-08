@@ -5,19 +5,18 @@ from fastapi import APIRouter, HTTPException, status
 
 from endpoints import crud
 import dependency_injection as inj
-from models import user_account as user_model
-from models import jwt_model
+from models import padentic_models as p_models
 from . import jwt_token_handler as jwt
 
-log = logging.getLogger("auth_routes")
+log = logging.getLogger("endpoint.auth")
 auth_route = APIRouter(prefix="/auth")
 
 
 @auth_route.post("/login", summary="Authenticate user")
 async def login(
-        user: user_model.UserLogin,
+        user: p_models.UserLogin,
         session: inj.Session_t,
-        settings: inj.Settings_t) -> user_model.UserAuthed:
+        settings: inj.Settings_t) -> p_models.UserAuthed:
     """Authenticate a user by providing a username and password"""
 
     try:
@@ -30,7 +29,7 @@ async def login(
 
 @auth_route.post("/user", status_code=201, summary="Create a new user")
 async def user_create(
-        user: user_model.UserCreate,
+        user: p_models.UserCreate,
         session: inj.Session_t,
         settings: inj.Settings_t) -> None:
     result = await crud.create_user(session, settings, user)
@@ -42,7 +41,7 @@ async def user_create(
 
 @auth_route.get("/user", summary="Validate users JWT token")
 async def user_jwt_get(
-        current_user: jwt.CurrentUser_t) -> user_model.UserAuthed:
+        current_user: jwt.CurrentUser_t) -> p_models.UserAuthed:
     log.debug(f"Processing request from {current_user}")
     return current_user
 
@@ -66,7 +65,7 @@ async def user_jwt_get(
 #
 
 
-@auth_route.post("/token", response_model=jwt_model.Token,
+@auth_route.post("/token", response_model=p_models.Token,
                  summary="OAuth2 Endpoint")
 async def jwt_login(
         form_data: inj.OAuthForm_t,

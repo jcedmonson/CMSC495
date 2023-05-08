@@ -84,6 +84,3 @@ async def test_user_valid_token(async_app_client: AsyncClient) -> None:
     headers = {"Authorization": f"Bearer {response.json().get('token')}"}
     response = await async_app_client.get("/auth/user", headers=headers)
     assert response.status_code == 200, response.text
-
-    # response = await async_app_client.get("/get_users", headers=headers)
-    # assert response.status_code == 200, response.text
