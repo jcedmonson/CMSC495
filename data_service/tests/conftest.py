@@ -182,5 +182,5 @@ async def populate_connections(async_client, populate_users):
 
 
 @pytest.fixture(scope="session")
-async def populate_comments(async_client, populate_connections):
+async def populate_posts(async_client, populate_connections):
     pass
