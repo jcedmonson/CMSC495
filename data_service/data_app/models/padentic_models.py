@@ -1,4 +1,7 @@
-from pydantic import BaseModel, EmailStr
+from datetime import datetime
+
+from pydantic import BaseModel, EmailStr, constr
+
 
 class UserBase(BaseModel):
     user_name: str
@@ -56,3 +59,31 @@ class JWTUser(BaseModel):
 
 class JWTDBUser(JWTUser):
     hashed_password: str
+
+
+class PostReaction(User):
+    reaction: int
+    class Config:
+        orm_mode = True
+
+class PostComment(User):
+    content: str
+    class Config:
+        orm_mode = True
+
+
+class UserPostBody(BaseModel):
+    content: str
+    class Config:
+        orm_mode = True
+
+class UserPost(UserPostBody, User):
+    post_id: int
+    post_date: datetime
+
+    comments: list[PostComment] = []
+    reactions: list[PostReaction] = []
+
+
+
+

@@ -27,13 +27,6 @@ async def startup() -> None:
         await conn.run_sync(Base.metadata.create_all)
     log.info("Database Initialized...")
 
-
-@data_app.post("/sync_user")
-async def sync_new_user() -> None:
-    return None
-
-
-
 if __name__ == "__main__":
     import uvicorn
 
