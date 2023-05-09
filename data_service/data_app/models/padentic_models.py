@@ -66,7 +66,7 @@ class PostReaction(User):
     class Config:
         orm_mode = True
 
-class PostComment(User):
+class PostCommentBody(User):
     content: str
     class Config:
         orm_mode = True
@@ -76,6 +76,12 @@ class UserPostBody(BaseModel):
     content: str
     class Config:
         orm_mode = True
+
+class PostComment(UserPostBody):
+    comment_id: int
+    post_id: int
+    user_id: int
+    comment_date: datetime
 
 class UserPost(UserPostBody, User):
     post_id: int

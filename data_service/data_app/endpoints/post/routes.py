@@ -21,7 +21,7 @@ async def get_post(post_id: int,
 @post_routes.post("/{post_id}/comment", status_code=201,
                   summary="Create a comment on a post")
 async def set_comment(post_id: int,
-                      post_obj: p_model.PostComment,
+                      post_obj: p_model.PostCommentBody,
                       current_user: CurrentUser_t,
                       session: inj.Session_t,
                       settings: inj.Settings_t) -> None:

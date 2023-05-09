@@ -4,7 +4,7 @@ from typing import Any, Sequence
 
 from fastapi import HTTPException, status
 
-from sqlalchemy import Row, RowMapping, select
+from sqlalchemy import Row, RowMapping, select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -191,7 +191,7 @@ async def get_connections(session: AsyncSession,
 
 async def set_comment(session: AsyncSession,
                       current_user: p_model.UserAuthed,
-                      post_obj: p_model.PostComment,
+                      post_obj: p_model.PostCommentBody,
                       post_id: int):
     stmt = (
         select(UserPost)
@@ -213,7 +213,7 @@ async def set_comment(session: AsyncSession,
         post_id=post.post_id,
         user_id=current_user.user_id,
         comment_date=datetime.utcnow(),
-        comment=post.content
+        content=post.content
     )
 
     session.add(new_post)
@@ -238,7 +238,7 @@ async def get_all_posts(session: AsyncSession,
         .order_by(UserPost.post_date.desc())
         .offset(offset)
         .limit(limit)
-        .filter(UserProfile.user_id.in_(connections))
+        .filter(or_(UserProfile.user_id.in_(connections), UserProfile.user_id == current_user.user_id))
     )
 
     posts = (await session.execute(stmt)).all()
