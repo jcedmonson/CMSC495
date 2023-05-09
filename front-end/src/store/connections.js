@@ -72,8 +72,9 @@ export const connectionsStore = defineStore("connections", {
      */
     getConnections() {
       const user = userStore();
-      axios.get(`${CONNECTIONS_SERVICE}/user/${user.user_id}`).then((resp) => {
+      return axios.get(`${CONNECTIONS_SERVICE}/user/${user.user_id}`).then((resp) => {
         this.connections = resp.data;
+        return resp;
       });
     },
 

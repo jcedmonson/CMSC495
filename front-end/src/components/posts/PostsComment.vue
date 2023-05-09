@@ -2,39 +2,44 @@
   <v-container class="full-height">
     <v-row>
       <v-col>
-        <v-sheet class="pb-2" rounded>
-          <div style="position: sticky; top: 63px; z-index: 2;">
-            <v-card elevation="0">
-              <v-card-title class="font-weight-light mt-2">
-                @{{ title }}</v-card-title
-              >
-              <v-card-text>
-                {{ content }}
-                <v-sheet border rounded class="mt-5">
-                  <v-textarea
-                    rows="1"
-                    class="pl-3 pr-3 mt-2"
-                    auto-grow
-                    variant="underlined"
-                    :label="`Reply to @${title}`"
-                  >
-                  </v-textarea>
-                  <v-btn variant="plain">Send</v-btn>
-                </v-sheet>
-              </v-card-text>
-            </v-card>
-            
-          </div>
-     
-          <v-card variant="tonal" class="ma-4" v-for="(comment, idx) in comments" :key="idx">
-            <v-card-title style="font-size: .9em;">
-              @{{ comment.username }}
-            </v-card-title>
-            <v-card-text>
-              {{ comment.comment }}
+        <div style="position: sticky; top: 63px; z-index: 2">
+          <v-card elevation="0">
+            <v-card-text class="pa-0 ma-0">
+              <v-card color="primary" variant="tonal" class="">
+                <v-card-title class="font-weight-light" style="color: white">@POSTER</v-card-title>
+                <v-card-text style="color: white"
+                  >Some random stuff that was said in this post.</v-card-text
+                >
+              </v-card>
+              <v-sheet rounded class="">
+                <v-textarea
+                  rows="1"
+                  class="pl-4 pr-4 mt-2"
+                  auto-grow
+                  variant="underlined"
+                  :label="`Reply to @${title}`"
+                >
+                </v-textarea>
+                <v-btn variant="plain">Send</v-btn>
+              </v-sheet>
             </v-card-text>
           </v-card>
-        </v-sheet>
+        </div>
+
+        <v-card
+          variant="tonal"
+          color="primary"
+          class="mt-3"
+          v-for="(comment, idx) in comments"
+          :key="idx"
+        >
+          <v-card-title style="font-size: 0.9em; color: white">
+            @{{ comment.username }}
+          </v-card-title>
+          <v-card-text style="color: white">
+            {{ comment.comment }}
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
 

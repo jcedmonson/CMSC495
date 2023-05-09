@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer v-model="app.drawer" location="left" temporary>
-    <v-list-item class="pt-2 pb-2" @click="">
+    <v-list-item class="pt-2 pb-2" @click="router.push({name: 'Profile'})">
       <template v-slot:prepend>
         <v-avatar variant="elevated" color="primary">{{
           user.first_name[0] + user.last_name[0]

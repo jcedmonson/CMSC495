@@ -5,7 +5,7 @@
       <v-col xs="12" sm="12" md="6" lg="6" xl="4">
         <v-card>
           <v-card-text class="ma-0 pa-0">
-            <v-text-field label="User Search" v-model="search" @update:modelValue="searchUser"></v-text-field>
+            <v-text-field label="Search For a Friend!" v-model="search" @update:modelValue="searchUser"></v-text-field>
             <v-list class="mb-4">
               <v-list-item v-for="(u, idx) in possibleConnections" :key="idx">
                 <template v-slot:prepend>
@@ -23,7 +23,7 @@
                     @click="connections.addConnection(u)"
                     ><v-icon icon="mdi-plus"></v-icon>Add</v-btn
                   >
-                  <v-icon v-else icon="mdi-check" color="green"></v-icon>
+                  <v-icon v-else class="mr-5" icon="mdi-check" color="green"></v-icon>
                 </template>
               </v-list-item>
             </v-list>

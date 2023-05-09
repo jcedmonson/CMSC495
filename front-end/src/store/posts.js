@@ -7,6 +7,8 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 
+const POSTS_SERVICE = import.meta.env.VITE_POSTS_SERVICE;
+
 /**
  * Post Store
  * @returns {Object}
@@ -18,22 +20,23 @@ export const postStore = defineStore("posts", {
       currentPosts: [],
       post: "",
       selectedPost: {},
-    }
+    };
   },
   actions: {
-
     /**
-     * Fetches a specific post 
+     * Fetches a specific post
      * @function viewPost
      * @memberof store.posts
      */
-    viewPost(id){
-      const api = "http://192.168.131.2:5000"
-      return axios.get(`${api}/posts/${id}`).then((resp) => {
-        this.selectedPost = resp.data;
-      }).catch((err) => {
-        this.selectedPost = err;
-      })
+    viewPost(id) {
+      return axios
+        .get(`${POSTS_SERVICE}/${id}`)
+        .then((resp) => {
+          this.selectedPost = resp.data;
+        })
+        .catch((err) => {
+          this.selectedPost = err;
+        });
     },
 
     /**
@@ -41,11 +44,19 @@ export const postStore = defineStore("posts", {
      * @function getPosts
      * @memberof store.posts
      */
-    getPosts(){
-      const api = "http://192.168.131.2:5000"
-      axios.get(`${api}/posts`).then((resp) => {
-        this.currentPosts = resp.data;
-      })
+    getPosts() {
+      return axios.get(`${POSTS_SERVICE}`).then((resp) => {
+        this.currentPosts = resp.data.sort((a, b) => {
+          if (a.post_id > b.post_id) {
+            return -1;
+          }
+
+          if (a.post_id < b.post_id) {
+            return 1;
+          }
+        });
+        return resp;
+      });
     },
 
     /**
@@ -54,14 +65,18 @@ export const postStore = defineStore("posts", {
      * @param {number|string} post
      * @memberof store.posts
      */
-    submitPost(post){
-      const api = "http://192.168.131.2:5000"
-      axios.post(`${api}/posts`, post).then((resp) => {
-        this.post = "";
-        this.currentPosts.unshift(resp.data)
-      }).catch((err) => {
-        // notify user
-      })
-    }
-  }
-})
+    submitPost() {
+      if (this.post.length > 0) {
+        axios
+          .post(`${POSTS_SERVICE}`, {content: this.post})
+          .then((resp) => {
+            this.post = "";
+            this.getPosts();
+          })
+          .catch((err) => {
+            // notify user
+          });
+      }
+    },
+  },
+});
