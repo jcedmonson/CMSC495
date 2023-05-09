@@ -81,6 +81,7 @@ class PostComment(UserPostBody):
     comment_id: int
     post_id: int
     user_id: int
+    user_name: str
     comment_date: datetime
 
 class ReactionResponse(BaseModel):
@@ -89,6 +90,7 @@ class ReactionResponse(BaseModel):
 
     post_id: int
     user_id: int
+    user_name: str
     reaction_date: datetime
     reaction_id: int
 

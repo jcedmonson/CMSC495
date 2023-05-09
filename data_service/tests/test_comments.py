@@ -27,6 +27,13 @@ async def test_post_comment(async_client: AsyncClient,
     assert response.status_code == 200, (user_chosen, response.text)
     assert len(response.json().get("comments")) > post_count
 
+    comment = response.json().get("comments")[-1]
+
+    response = await async_client.get(f"/posts/{post.post_id}/{comment.get('comment_id')}",
+                                      headers=user_chosen.jwt_token)
+    assert response.status_code == 200, (user_chosen, response.text)
+
+
 
 async def test_fetch_missing_post(async_client: AsyncClient,
                                   mock_users: list[MockUser]) -> None:
@@ -47,4 +54,6 @@ async def test_fetch_missing_comment(async_client: AsyncClient,
     response = await async_client.get(f"/posts/{post_id}/9999999",
                                       headers=user.jwt_token)
     assert response.status_code == 404, (user, response.text)
+
+
 

@@ -3,12 +3,11 @@ from datetime import datetime, timedelta
 import logging
 from typing import Any, Sequence
 
-import ipdb
 from fastapi import HTTPException, status
 
 from sqlalchemy import Row, RowMapping, select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 import dependency_injection as inj
 from models.sql_models import UserProfile, UserConnection, UserPost, \
@@ -266,6 +265,7 @@ async def set_comment(session: AsyncSession,
     new_post = PostComment(
         post_id=post.post_id,
         user_id=current_user.user_id,
+        user_name=current_user.user_name,
         comment_date=datetime.utcnow(),
         content=post_obj.content
     )
@@ -287,6 +287,7 @@ async def set_reaction(session: AsyncSession,
         post_id=post.post_id,
         user_id=current_user.user_id,
         reaction_date=datetime.utcnow(),
+        user_name=current_user.user_name,
         reaction_id=reaction_obj.reaction
     )
 

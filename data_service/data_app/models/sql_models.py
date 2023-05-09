@@ -34,8 +34,6 @@ class UserProfile(Base):
     connections: Mapped[list["UserConnection"]] = relationship("UserConnection", foreign_keys="UserConnection.current_user_id", back_populates="current_user")
     posts: Mapped[list["UserPost"]] = relationship(back_populates="user_post")
 
-    comments_made: Mapped[list["PostComment"]] = relationship()
-
 class UserPost(Base):
     __tablename__ = "user_post"
     post_id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -48,6 +46,7 @@ class UserPost(Base):
 
     comments: Mapped[list["PostComment"]] = relationship(
         back_populates="comment_list", cascade="all, delete-orphan")
+
     reactions: Mapped[list["PostReaction"]] = relationship(
         back_populates="reaction_list", cascade="all, delete-orphan")
 
@@ -70,17 +69,19 @@ class PostComment(Base):
     comment_id: Mapped[int] = mapped_column(primary_key=True, index=True)
     post_id: Mapped[int] = mapped_column(ForeignKey("user_post.post_id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
+    user_name: Mapped[int] = mapped_column(ForeignKey("user_profile.user_name"))
+
     comment_date: Mapped[datetime]
     content: Mapped[str] = mapped_column(String(1024))
 
     comment_list: Mapped[UserPost] = relationship(back_populates="comments")
-    user_profile: Mapped[UserProfile] = relationship(back_populates="comments_made")
 
 
 class PostReaction(Base):
     __tablename__ = "post_reaction"
     post_id: Mapped[int] = mapped_column(ForeignKey("user_post.post_id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
+    user_name: Mapped[int] = mapped_column(ForeignKey("user_profile.user_name"))
     reaction_date: Mapped[datetime]
     reaction_id: Mapped[int]
 
