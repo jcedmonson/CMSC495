@@ -64,7 +64,6 @@ async def set_comment(post_id: int,
                       session: inj.Session_t,
                       settings: inj.Settings_t) -> None:
 
-
     if len(post_obj.content) > settings.comment_limit_size:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -83,7 +82,7 @@ async def set_comment(post_id: int,
                       reaction_obj: p_model.PostReaction,
                       current_user: CurrentUser_t,
                       session: inj.Session_t) -> None:
-    
+
     log.debug(f"User {current_user.user_name} reacting to post id {post_id}")
     await crud.set_reaction(session, current_user, reaction_obj, post_id)
 

@@ -11,8 +11,9 @@ async def test_post_comment(async_client: AsyncClient,
                             mock_users: list[MockUser]) -> None:
     post, user_chosen = await get_random_post(async_client, mock_users)
     post_count = len(post.comments)
+
     comment = p_model.PostCommentBody.parse_obj(
-        {"content": user_chosen.comment, **post.dict()})
+        { **post.dict(), "content": user_chosen.gen_comment()})
 
     response = await async_client.post(
         f"/posts/{post.post_id}/comment",

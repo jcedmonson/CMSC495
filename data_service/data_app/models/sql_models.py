@@ -34,6 +34,8 @@ class UserProfile(Base):
     connections: Mapped[list["UserConnection"]] = relationship("UserConnection", foreign_keys="UserConnection.current_user_id", back_populates="current_user")
     posts: Mapped[list["UserPost"]] = relationship(back_populates="user_post")
 
+    comments_made: Mapped[list["PostComment"]] = relationship()
+
 class UserPost(Base):
     __tablename__ = "user_post"
     post_id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -72,6 +74,7 @@ class PostComment(Base):
     content: Mapped[str] = mapped_column(String(1024))
 
     comment_list: Mapped[UserPost] = relationship(back_populates="comments")
+    user_profile: Mapped[UserProfile] = relationship(back_populates="comments_made")
 
 
 class PostReaction(Base):
