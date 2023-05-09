@@ -18,7 +18,6 @@ async def get_post(post_id: int,
                    session: inj.Session_t) -> p_model.UserPost:
     return await crud.get_post(session, post_id)
 
-
 @post_routes.post("/{post_id}/comment", status_code=201,
                   summary="Create a comment on a post")
 async def set_comment(post_id: int,

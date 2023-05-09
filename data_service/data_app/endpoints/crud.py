@@ -246,7 +246,7 @@ async def get_post(session: AsyncSession, post_id: int):
         .join(UserProfile)
         .options(selectinload(UserPost.comments),
                  selectinload(UserPost.reactions))
-        .where(UserPost.user_id == post_id)
+        .where(UserPost.post_id == post_id)
     )
 
     post = (await session.execute(stmt)).first()
