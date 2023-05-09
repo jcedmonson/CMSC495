@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 
 import dependency_injection as inj
 from models.sql_models import UserProfile, UserConnection, UserPost, \
-    PostComment
+    PostComment, PostReaction
 from models import padentic_models as p_model
 from endpoints.auth import jwt_token_handler as jwt
 
@@ -19,6 +19,9 @@ log = logging.getLogger("crud")
 
 def set_post_model(post: Row[UserPost, UserProfile]) -> p_model.UserPost:
     post, user = post
+
+    print(f"post: {post}\nuser: {user}\n")
+
     return p_model.UserPost(
         user_id=user.user_id,
         user_name=user.user_name,
@@ -231,10 +234,8 @@ async def get_connections(session: AsyncSession,
     return connections
 
 
-async def set_comment(session: AsyncSession,
-                      current_user: p_model.UserAuthed,
-                      post_obj: p_model.PostCommentBody,
-                      post_id: int):
+async def _get_post(session: AsyncSession,
+                    post_id: int) -> p_model.UserPost:
     stmt = (
         select(UserPost)
         .options(selectinload(UserPost.comments),
@@ -251,6 +252,18 @@ async def set_comment(session: AsyncSession,
             detail=f"Post ID {post_id} was not found"
         )
 
+    return post
+
+async def set_comment(session: AsyncSession,
+                      current_user: p_model.UserAuthed,
+                      post_obj: p_model.PostCommentBody,
+                      post_id: int):
+
+    try:
+        post = await _get_post(session, post_id)
+    except:
+        raise
+
     new_post = PostComment(
         post_id=post.post_id,
         user_id=current_user.user_id,
@@ -260,8 +273,26 @@ async def set_comment(session: AsyncSession,
 
     session.add(new_post)
     await session.commit()
-    await session.refresh(post)
 
+async def set_reaction(session: AsyncSession,
+                       current_user: p_model.UserAuthed,
+                       reaction_obj: p_model.PostReaction,
+                       post_id: int) -> None:
+
+    try:
+        post = await _get_post(session, post_id)
+    except:
+        raise
+
+    new_reaction = PostReaction(
+        post_id=post.post_id,
+        user_id=current_user.user_id,
+        reaction_date=datetime.utcnow(),
+        reaction_id=reaction_obj.reaction
+    )
+
+    session.add(new_reaction)
+    await session.commit()
 
 async def get_all_posts(session: AsyncSession,
                         current_user: p_model.UserAuthed,
@@ -310,7 +341,7 @@ async def get_post(session: AsyncSession, post_id: int) -> p_model.UserPost:
 async def get_posts(session: AsyncSession,
                     current_user: p_model.UserAuthed
                     ) -> list[p_model.UserPost]:
-    
+
     stmt = (
         select(UserPost, UserProfile)
         .join(UserProfile)

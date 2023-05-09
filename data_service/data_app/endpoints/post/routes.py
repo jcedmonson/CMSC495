@@ -63,6 +63,8 @@ async def set_comment(post_id: int,
                       current_user: CurrentUser_t,
                       session: inj.Session_t,
                       settings: inj.Settings_t) -> None:
+
+
     if len(post_obj.content) > settings.comment_limit_size:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -75,6 +77,15 @@ async def set_comment(post_id: int,
             detail=f"Comment payload must be at least {settings.comment_min_size} characters"
         )
     await crud.set_comment(session, current_user, post_obj, post_id)
+
+@post_routes.post("/{post_id}/reaction", status_code=201, summary="Add a reaction to the post by post_id")
+async def set_comment(post_id: int,
+                      reaction_obj: p_model.PostReaction,
+                      current_user: CurrentUser_t,
+                      session: inj.Session_t) -> None:
+    
+    log.debug(f"User {current_user.user_name} reacting to post id {post_id}")
+    await crud.set_reaction(session, current_user, reaction_obj, post_id)
 
 @post_routes.get("/{post_id}/{comment_id}", summary="Fetch a comment for the given post")
 async def get_comment(post_id: int,

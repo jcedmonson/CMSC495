@@ -83,18 +83,23 @@ class PostComment(UserPostBody):
     user_id: int
     comment_date: datetime
 
+class ReactionResponse(BaseModel):
+    class Config:
+        orm_mode = True
+
+    post_id: int
+    user_id: int
+    reaction_date: datetime
+    reaction_id: int
+
+
 class UserPost(UserPostBody, User):
     post_id: int
     post_date: datetime
 
     comments: list[PostComment] = []
-    reactions: list[PostReaction] = []
+    reactions: list[ReactionResponse] = []
 
-
-class TestPost(BaseModel):
-    posts: tuple[UserPostBody, User]
-    class Config:
-        orm_mode = True
 
 
 

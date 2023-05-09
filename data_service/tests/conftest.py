@@ -9,6 +9,7 @@ from pydantic import BaseModel, EmailStr
 from main import data_app, get_settings
 from endpoints.database import database
 from endpoints import crud
+from models import padentic_models as p_model
 
 
 class MockUser(BaseModel):
@@ -79,9 +80,9 @@ def event_loop():
 
 @pytest.fixture(scope="session")
 async def async_client(event_loop) -> AsyncClient:
-    async with AsyncClient(app=data_app,
-                           base_url="http://127.0.0.1:8080") as client:
-    # async with AsyncClient(base_url="http://127.0.0.1:8080") as client:
+    # async with AsyncClient(app=data_app,
+    #                        base_url="http://127.0.0.1:8080") as client:
+    async with AsyncClient(base_url="http://127.0.0.1:8080") as client:
 
         await data_app.router.startup()
 
@@ -227,3 +228,22 @@ async def mock_users(async_client, populated_users) -> list[MockUser]:
         # await populate_comments(async_client, mock_users)
 
     yield mock_users
+    
+async def get_random_post(async_client: AsyncClient,
+                          mock_users: list[MockUser]) -> tuple[
+    p_model.UserPost, MockUser]:
+    post: p_model.UserPost | None = None
+    user_chosen: MockUser | None = None
+
+    while post is None:
+        other_user = choice(mock_users)
+        response = await async_client.get("/posts",
+                                          headers=other_user.jwt_token)
+        assert response.status_code == 200, (other_user, response.text)
+        posts = response.json()
+
+        if posts:
+            post = p_model.UserPost.parse_obj(choice(posts))
+            user_chosen = other_user
+
+    return post, user_chosen
