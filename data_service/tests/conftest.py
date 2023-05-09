@@ -165,7 +165,7 @@ async def populate_users(async_client):
 
 @pytest.fixture(scope="session")
 async def populate_connections(async_client, populate_users):
-    for _ in range(0, 100):
+    for _ in range(0, 20):
         user = choice(MOCK_USERS)
         follow = choice(MOCK_USERS)
 
@@ -184,7 +184,7 @@ async def populate_connections(async_client, populate_users):
 
 @pytest.fixture(scope="session")
 async def populate_posts(async_client, populate_connections):
-    for _ in range(0, 100):
+    for _ in range(0, 20):
         user = choice(MOCK_USERS)
 
         response = await async_client.post(

@@ -250,6 +250,12 @@ async def get_post(session: AsyncSession, post_id: int):
     )
 
     post = (await session.execute(stmt)).first()
+    if post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post was not found"
+        )
+
     return set_post_model(post)
 
 async def get_posts(session: AsyncSession,
