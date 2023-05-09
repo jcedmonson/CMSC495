@@ -37,6 +37,15 @@ async def set_comment(post_id: int,
             detail=f"Comment payload must be at least {settings.comment_min_size} characters"
         )
     await crud.set_comment(session, current_user, post_obj, post_id)
+    
+@post_routes.get("/{post_id}/{comment_id}")
+async def get_comment(post_id: int,
+                      comment_id: int,
+                      _: CurrentUser_t,
+                      session: inj.Session_t) -> p_model.PostComment:
+    log.debug(f"Fetching for comment {comment_id} from post {post_id}")
+    return await crud.get_comment(session, post_id, comment_id)
+    
 
 
 @post_routes.get("/timeline/",

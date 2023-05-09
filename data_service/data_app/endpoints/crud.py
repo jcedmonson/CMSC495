@@ -145,6 +145,38 @@ async def get_all_users(session: AsyncSession) -> Sequence[
 
     return result
 
+async def get_comment(session: AsyncSession,
+                      post_id: int,
+                      comment_id: int) -> p_model.PostComment:
+    stmt = (
+        select(UserPost)
+        .where(UserPost.post_id == post_id)
+    )
+    
+    result = (await session.scalars(stmt)).one_or_none()
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Unable to find post {post_id}"
+        )
+        
+    stmt = (
+        select(PostComment)
+        .where(PostComment.comment_id == comment_id)
+    )
+    
+    result = (await session.scalars(stmt)).one_or_none()
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Unable to find post {post_id}"
+        )
+    
+    return p_model.PostComment.from_orm(result)
+
+        
+        
+
 
 async def get_user_by_id(session: AsyncSession,
                          user_id: int) -> p_model.User:
@@ -256,7 +288,7 @@ async def get_all_posts(session: AsyncSession,
     return set_post_models(posts)
 
 
-async def get_post(session: AsyncSession, post_id: int):
+async def get_post(session: AsyncSession, post_id: int) -> p_model.UserPost:
     stmt = (
         select(UserPost, UserProfile)
         .join(UserProfile)
@@ -265,7 +297,7 @@ async def get_post(session: AsyncSession, post_id: int):
         .where(UserPost.post_id == post_id)
     )
 
-    post = (await session.execute(stmt)).first()
+    post = (await session.execute(stmt)).one_or_none()
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
