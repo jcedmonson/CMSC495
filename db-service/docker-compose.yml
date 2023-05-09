@@ -13,6 +13,8 @@ services:
     networks:
       - cmsc495_network
 
+    command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+
 volumes:
 
   data_volume:

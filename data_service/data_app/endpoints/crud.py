@@ -167,7 +167,7 @@ async def get_user_by_id(session: AsyncSession,
 
 
 async def get_connections(session: AsyncSession,
-                          user_id: int) -> list[UserProfile]:
+                          user_id: int) -> list[p_model.User]:
     # If successful, the user exists
     try:
         _ = await get_user_by_id(session, user_id)
@@ -175,19 +175,27 @@ async def get_connections(session: AsyncSession,
         raise
 
     # Select all the connection IDs that the user has
-    stmt = select(UserConnection).where(
-        UserConnection.current_user_id == user_id)
+    stmt = (
+        select(UserConnection, UserProfile)
+        .where(UserConnection.current_user_id == user_id)
+    )
     result = await session.execute(stmt)
 
     # get the ID of the users the user has a connection with
     connections = [i.follows_user_id for i in result.scalars().all()]
     log.debug(f"User {user_id} has {len(connections)} connections")
 
-    # Fetch all the users from the given IDs
-    stmt = select(UserProfile).where(UserProfile.user_id.in_(connections))
-    result = await session.execute(stmt)
-    connections = result.scalars().all()
+    if not connections:
+        return connections
 
+    # Fetch all the users from the given IDs
+    stmt = (
+        select(UserProfile)
+        .where(UserProfile.user_id.in_(connections))
+    )
+
+    result = await session.scalars(stmt)
+    connections = [p_model.User.from_orm(user_profile) for user_profile in result]
     return connections
 
 
@@ -240,7 +248,8 @@ async def get_all_posts(session: AsyncSession,
         .order_by(UserPost.post_date.desc())
         .offset(offset)
         .limit(limit)
-        .filter(or_(UserProfile.user_id.in_(connections), UserProfile.user_id == current_user.user_id))
+        .filter(or_(UserProfile.user_id.in_(connections),
+                    UserProfile.user_id == current_user.user_id))
     )
 
     posts = (await session.execute(stmt)).all()

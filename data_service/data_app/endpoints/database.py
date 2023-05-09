@@ -24,7 +24,7 @@ class Database:
 
         self.engine = create_async_engine(
             self.settings.dns,
-            echo=True,
+            echo=False,
             connect_args={
                 "server_settings": {
                     "application_name": self.settings.app_name

@@ -33,18 +33,6 @@ async def test_user_invalid_req(async_client: AsyncClient) -> None:
     assert response.status_code == 422, response.text
 
 
-# async def test_user_valid_creation(async_client: AsyncClient) -> None:
-#     response = await async_client.post(
-#         "/auth/user",
-#         json={
-#             "user_name": "sasquach",
-#             "first_name": "johnson",
-#             "last_name": "also johnson",
-#             "password": "password",
-#             "email": "johnson@johnson.com"
-#         },
-#     )
-#     assert response.status_code == 201, response.text
 
 
 async def test_user_valid_token(async_client: AsyncClient,
