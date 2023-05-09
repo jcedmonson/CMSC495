@@ -6,6 +6,7 @@
 
 import axios from "axios";
 import { defineStore } from "pinia";
+import { userStore } from "@/store/user";
 
 const POSTS_SERVICE = import.meta.env.VITE_POSTS_SERVICE;
 
@@ -20,6 +21,7 @@ export const postStore = defineStore("posts", {
       currentPosts: [],
       post: "",
       selectedPost: {},
+      comment: "",
     };
   },
   actions: {
@@ -32,6 +34,23 @@ export const postStore = defineStore("posts", {
       return axios.get(`${POSTS_SERVICE}/${id}`).then((resp) => {
         this.selectedPost = resp.data;
       });
+    },
+
+    postComment(){
+      const user = userStore();
+      if (this.comment.length > 0){
+        return axios.post(`${POSTS_SERVICE}/${this.selectedPost.post_id}/comment`, {
+          user_id: user.user_id,
+          user_name: user.user_name,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          content: this.comment
+        }).then((resp) => {
+          this.viewPost(this.selectedPost.post_id)
+          this.comment = "";
+          return resp;
+        });
+      }
     },
 
     /**

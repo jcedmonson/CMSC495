@@ -4,9 +4,6 @@
       <v-col class="d-none d-md-block"> </v-col>
       <v-col xs="12" sm="12" md="6" lg="6" xl="4">
         <posts-comment
-          :title="posts.selectedPost.username"
-          :content="posts.selectedPost.content"
-          :id="posts.selectedPost.postId"
         ></posts-comment>
       </v-col>
       <v-col class="d-none d-md-block"></v-col>
