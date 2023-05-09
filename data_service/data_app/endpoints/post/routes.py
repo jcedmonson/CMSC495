@@ -46,7 +46,6 @@ async def set_comment(post_id: int,
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Comment payload must be at least {settings.comment_min_size} characters"
         )
-
     await crud.set_comment(session, current_user, post_obj, post_id)
 
 

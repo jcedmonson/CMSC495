@@ -57,7 +57,13 @@ async def test_get_all_posts(user: MockUser, async_client, populate_posts):
     assert len(response.json()) <= 10
 
 async def test_get_post_by_id(user: MockUser, async_client, populate_posts):
-    response = await async_client.get("/posts/3", headers=user.jwt_token)
+    response = await async_client.get("/posts/0", headers=user.jwt_token)
+    assert response.status_code == 404, (user, response.text)
+
+    response = await async_client.get("/posts/10", headers=user.jwt_token)
+    assert response.status_code == 200, (user, response.text)
+
+    response = await async_client.get("/posts/5", headers=user.jwt_token)
     assert response.status_code == 200, (user, response.text)
 
 # async def test_post_comment(user: MockUser, async_client, populate_posts):
