@@ -32,12 +32,13 @@ def set_post_model(post: tuple[UserPost, UserProfile]) -> p_model.UserPost:
         reactions=post.reactions
     )
 
-def set_post_models(posts: list[tuple[UserPost, UserProfile]]) -> list[p_model.UserPost]:
+
+def set_post_models(posts: list[tuple[UserPost, UserProfile]]) -> list[
+    p_model.UserPost]:
     post_objs = []
     for post in posts:
         post_objs.append(set_post_model(post))
     return post_objs
-
 
 
 async def login_user(session: inj.Session_t,
@@ -192,7 +193,13 @@ async def set_comment(session: AsyncSession,
                       current_user: p_model.UserAuthed,
                       post_obj: p_model.PostComment,
                       post_id: int):
-    stmt = select(UserPost).where(UserPost.post_id == post_id)
+    stmt = (
+        select(UserPost)
+        .options(selectinload(UserPost.comments),
+                 selectinload(UserPost.reactions))
+        .where(UserPost.post_id == post_id)
+    )
+
     result = await session.execute(stmt)
     post: UserPost = result.scalar_one_or_none()
 
@@ -209,11 +216,20 @@ async def set_comment(session: AsyncSession,
         comment=post.content
     )
 
-    post.comments.append(new_post)
+    session.add(new_post)
     await session.commit()
+    await session.refresh(post)
 
 
-async def get_all_posts(session: AsyncSession, limit: int, offset: int):
+async def get_all_posts(session: AsyncSession,
+                        current_user: p_model.UserAuthed,
+                        limit: int, offset: int):
+    stmt = (
+        select(UserConnection.follows_user_id)
+        .where(UserConnection.current_user_id == current_user.user_id)
+    )
+    connections = (await session.execute(stmt)).scalars().all()
+
     stmt = (
         select(UserPost, UserProfile)
         .join(UserProfile)
@@ -222,6 +238,7 @@ async def get_all_posts(session: AsyncSession, limit: int, offset: int):
         .order_by(UserPost.post_date.desc())
         .offset(offset)
         .limit(limit)
+        .filter(UserProfile.user_id.in_(connections))
     )
 
     posts = (await session.execute(stmt)).all()
@@ -246,8 +263,10 @@ async def get_post(session: AsyncSession, post_id: int):
 
     return set_post_model(post)
 
+
 async def get_posts(session: AsyncSession,
-                    current_user: p_model.UserAuthed) -> list[p_model.UserPost]:
+                    current_user: p_model.UserAuthed) -> list[
+    p_model.UserPost]:
     stmt = (
         select(UserPost, UserProfile)
         .join(UserProfile)
@@ -260,31 +279,7 @@ async def get_posts(session: AsyncSession,
     posts = (await session.execute(stmt)).all()
     return set_post_models(posts)
 
-    # stmt = select(UserProfile).where(
-    #     UserProfile.user_id == current_user.user_id).options(
-    #     selectinload(UserProfile.posts))
-    # result = await session.execute(stmt)
-    # user = result.scalar_one_or_none()
-    #
-    # if user is None or not user.posts:
-    #     return []
-    #
-    # posts = []
-    # user_model = p_model.User.from_orm(user)
-    # for post in user.posts:
-    #     post = p_model.UserPost(
-    #         user_id=user_model.user_id,
-    #         post_id=post.post_id,
-    #         post_date=post.post_date,
-    #         user_name=user_model.user_name,
-    #         first_name=user_model.first_name,
-    #         last_name=user_model.last_name,
-    #         content=post.content,
-    #     )
-    #     posts.append(post)
-    # return posts
-    #
-    #
+
 async def set_post(session: AsyncSession, current_user: p_model.UserAuthed,
                    post_body: str):
     post = UserPost(content=post_body,

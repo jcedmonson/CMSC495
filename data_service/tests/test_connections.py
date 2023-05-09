@@ -39,7 +39,9 @@ async def test_duplicate_connection(async_client, populate_users, populate_conne
     user = MOCK_USERS[0]
     response = await async_client.get(f"/connections/user/{user.user_id}", headers=user.jwt_token)
     assert response.status_code == 200, (user, response.text)
+
     connected_with = choice(response.json())
+
 
     response = await async_client.post(
         "/connections/user",
@@ -52,6 +54,7 @@ async def test_duplicate_connection(async_client, populate_users, populate_conne
         headers=user.jwt_token
     )
     assert response.status_code == 403, user
+
 
 
 
