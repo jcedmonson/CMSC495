@@ -19,15 +19,6 @@ async def get_post(post_id: int,
     return await crud.get_post(session, post_id)
 
 
-@post_routes.get("/timeline/",
-                 summary="Fetch all posts ordered by newest posts. Default limit is 50 with an offset of 0")
-async def get_all_posts(limit: int = 50,
-                        offset: int = 0,
-                        session: inj.Session_t = None
-                        ) -> list[p_model.UserPost]:
-    return await crud.get_all_posts(session, limit, offset)
-
-
 @post_routes.post("/{post_id}/comment", status_code=201,
                   summary="Create a comment on a post")
 async def set_comment(post_id: int,
@@ -48,6 +39,15 @@ async def set_comment(post_id: int,
         )
 
     await crud.set_comment(session, current_user, post_obj, post_id)
+
+
+@post_routes.get("/timeline/",
+                 summary="Fetch all posts ordered by newest posts. Default limit is 50 with an offset of 0")
+async def get_all_posts(limit: int = 50,
+                        offset: int = 0,
+                        session: inj.Session_t = None
+                        ) -> list[p_model.UserPost]:
+    return await crud.get_all_posts(session, limit, offset)
 
 
 @post_routes.get("", summary="Fetch all posts made by current user")

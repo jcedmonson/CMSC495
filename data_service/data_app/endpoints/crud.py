@@ -192,7 +192,14 @@ async def set_comment(session: AsyncSession,
                       current_user: p_model.UserAuthed,
                       post_obj: p_model.PostComment,
                       post_id: int):
-    stmt = select(UserPost).where(UserPost.post_id == post_id)
+
+    stmt = (
+        select(UserPost)
+        .options(selectinload(UserPost.comments),
+                 selectinload(UserPost.reactions))
+        .where(UserPost.post_id == post_id)
+    )
+
     result = await session.execute(stmt)
     post: UserPost = result.scalar_one_or_none()
 
@@ -209,7 +216,12 @@ async def set_comment(session: AsyncSession,
         comment=post.content
     )
 
+    import ipdb;ipdb.set_trace()
+
     post.comments.append(new_post)
+
+
+    import ipdb;ipdb.set_trace()
     await session.commit()
 
 

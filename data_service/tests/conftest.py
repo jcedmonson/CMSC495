@@ -85,9 +85,9 @@ def event_loop():
 
 @pytest.fixture(scope="session")
 async def async_client(event_loop):
-    # async with AsyncClient(app=data_app,
-    #                        base_url="http://127.0.0.1:8080") as client:
-    async with AsyncClient(base_url="http://127.0.0.1:8080") as client:
+    async with AsyncClient(app=data_app,
+                           base_url="http://127.0.0.1:8080") as client:
+    # async with AsyncClient(base_url="http://127.0.0.1:8080") as client:
 
         await data_app.router.startup()
 
