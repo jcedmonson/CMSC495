@@ -5,16 +5,25 @@
         <div style="position: sticky; top: 63px; z-index: 2">
           <v-card elevation="0">
             <v-card-text class="pa-0 ma-0">
-              <v-card color="primary" variant="tonal" class="">
-                <v-card-title class="font-weight-light" style="color: white">@{{posts.selectedPost.user_name}}</v-card-title>
-                <v-card-text style="color: white" class="mt-2 mb-2"
+              <v-card elevation="0">
+
+                <v-card-title class="font-weight-light pb-3 pt-3">
+                  <v-avatar size="35" variant="elevated" color="primary" class="mr-1">{{
+                    posts.selectedPost.first_name[0] + posts.selectedPost.last_name[0]
+                  }}</v-avatar>
+
+                  @{{ posts.selectedPost.user_name }}</v-card-title
+                >
+
+
+                <v-card-text style="color: white" class="mt-2"
                   >{{posts.selectedPost.content}}</v-card-text
                 >
               </v-card>
-              <v-sheet rounded class="">
+              <v-card rounded color="primary" class="mt-2" elevation="0">
                 <v-textarea
                   rows="1"
-                  class="pl-4 pr-4 mt-2"
+                  class="pl-4 pr-4 pt-1"
                   auto-grow
                   variant="underlined"
                   :label="`Reply to @${posts.selectedPost.user_name}`"
@@ -22,7 +31,7 @@
                 >
                 </v-textarea>
                 <v-btn variant="plain" @click="posts.postComment()">Send</v-btn>
-              </v-sheet>
+              </v-card>
             </v-card-text>
           </v-card>
         </div>

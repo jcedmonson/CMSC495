@@ -48,7 +48,6 @@ export const connectionsStore = defineStore("connections", {
      * @memberof store.connections
      */
     getUsers() {
-      console.log(USERS_SERVICE);
       axios.get(`${USERS_SERVICE}`).then((resp) => {
         this.users = resp.data;
       });
