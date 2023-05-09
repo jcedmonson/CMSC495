@@ -29,14 +29,9 @@ export const postStore = defineStore("posts", {
      * @memberof store.posts
      */
     viewPost(id) {
-      return axios
-        .get(`${POSTS_SERVICE}/${id}`)
-        .then((resp) => {
-          this.selectedPost = resp.data;
-        })
-        .catch((err) => {
-          this.selectedPost = err;
-        });
+      return axios.get(`${POSTS_SERVICE}/${id}`).then((resp) => {
+        this.selectedPost = resp.data;
+      });
     },
 
     /**
@@ -45,16 +40,8 @@ export const postStore = defineStore("posts", {
      * @memberof store.posts
      */
     getPosts() {
-      return axios.get(`${POSTS_SERVICE}`).then((resp) => {
-        this.currentPosts = resp.data.sort((a, b) => {
-          if (a.post_id > b.post_id) {
-            return -1;
-          }
-
-          if (a.post_id < b.post_id) {
-            return 1;
-          }
-        });
+      return axios.get(`${POSTS_SERVICE}/timeline/`).then((resp) => {
+        this.currentPosts = resp.data;
         return resp;
       });
     },
@@ -68,7 +55,7 @@ export const postStore = defineStore("posts", {
     submitPost() {
       if (this.post.length > 0) {
         axios
-          .post(`${POSTS_SERVICE}`, {content: this.post})
+          .post(`${POSTS_SERVICE}`, { content: this.post })
           .then((resp) => {
             this.post = "";
             this.getPosts();

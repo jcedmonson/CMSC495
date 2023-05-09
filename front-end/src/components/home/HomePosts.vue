@@ -1,14 +1,20 @@
 <template>
   <v-card color="primary" variant="tonal">
-    <v-card-title class="pb-3 pt-3" style="color: white; font-size: .9em;">
-      <v-avatar size="35" variant="elevated" color="primary" class="mb-0 mr-1">{{
-        props.post.first_name[0] + props.post.last_name[0]
-      }}</v-avatar>
+    <v-card-title class="pb-3 pt-3" style="color: white; font-size: 0.9em">
+      <v-avatar
+        size="35"
+        variant="elevated"
+        color="primary"
+        class="mb-0 mr-1"
+        >{{ props.post.first_name[0] + props.post.last_name[0] }}</v-avatar
+      >
 
       @{{ props.post.user_name }}</v-card-title
     >
-    <v-card-subtitle style="color: white;">{{ props.post.post_date }}</v-card-subtitle>
-    <v-card-text style="color: white;">
+    <v-card-subtitle style="color: white">{{
+      props.post.post_date
+    }}</v-card-subtitle>
+    <v-card-text style="color: white">
       {{ props.post.content }}
     </v-card-text>
 
@@ -19,7 +25,14 @@
         color="white"
         @click="
           () => {
-            router.push(`/posts/${props.post.post_id}`);
+            posts
+              .viewPost(props.post.post_id)
+              .then(() => {
+                router.push(`/posts/${props.post.post_id}`);
+              })
+              .catch((err) => {
+                app.showMessage(err);
+              });
           }
         "
         ><v-icon>mdi-comment</v-icon>({{ props.post.comments.length }})</v-btn
@@ -30,6 +43,11 @@
 <script setup>
 import { ref } from "vue";
 import router from "@/router/index.js";
+import { postStore } from "@/store/posts";
+import { appStore } from "@/store/app.js";
+
+const posts = postStore();
+const app = appStore();
 
 const props = defineProps(["post"]);
 

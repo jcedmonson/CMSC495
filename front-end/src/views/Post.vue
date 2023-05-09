@@ -20,7 +20,6 @@ import router from "@/router/index.js";
 import PostsComment from "@/components/posts/PostsComment.vue";
 
 const posts = postStore();
-posts.viewPost(router.currentRoute.value.params.id);
 
 </script>
 
