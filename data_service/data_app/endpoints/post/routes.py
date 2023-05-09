@@ -43,9 +43,10 @@ async def set_comment(post_id: int,
                  summary="Fetch all posts ordered by newest posts. Default limit is 50 with an offset of 0")
 async def get_all_posts(limit: int = 50,
                         offset: int = 0,
-                        session: inj.Session_t = None
+                        session: inj.Session_t = None,
+                        current_user: CurrentUser_t = None
                         ) -> list[p_model.UserPost]:
-    return await crud.get_all_posts(session, limit, offset)
+    return await crud.get_all_posts(session, current_user, limit, offset)
 
 
 @post_routes.get("", summary="Fetch all posts made by current user")
