@@ -84,6 +84,11 @@ class UserPost(UserPostBody, User):
     comments: list[PostComment] = []
     reactions: list[PostReaction] = []
 
+class TestPost(BaseModel):
+    posts: tuple[UserPostBody, User]
+    class Config:
+        orm_mode = True
+
 
 
 

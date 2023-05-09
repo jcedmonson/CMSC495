@@ -41,6 +41,7 @@ class UserPost(Base):
     content: Mapped[str] = mapped_column(String(2048))
 
     user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
+
     user_post: Mapped["UserProfile"] = relationship(back_populates="posts")
 
     comments: Mapped[list["PostComment"]] = relationship(
@@ -60,8 +61,6 @@ class UserConnection(Base):
     __table_args__ = (
         PrimaryKeyConstraint("current_user_id", "follows_user_id"),
     )
-
-
 
 class PostComment(Base):
     __tablename__ = "post_comment"

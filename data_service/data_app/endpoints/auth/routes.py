@@ -26,7 +26,6 @@ async def login(
 
     return result
 
-
 @auth_route.post("/user", status_code=201, summary="Create a new user")
 async def user_create(
         user: p_models.UserCreate,
