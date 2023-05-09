@@ -97,6 +97,8 @@ async def create_user(session: inj.Session_t,
     await session.commit()
     await session.refresh(new_user)
 
+    log.info(f"Created user {new_user.user_name}")
+
     return p_model.UserAuthed(**new_user.__dict__)
 
 

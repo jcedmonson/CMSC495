@@ -24,7 +24,7 @@ class Database:
 
         self.engine = create_async_engine(
             self.settings.dns,
-            echo=False,
+            echo=True,
             connect_args={
                 "server_settings": {
                     "application_name": self.settings.app_name
@@ -47,6 +47,7 @@ async def get_session() -> AsyncSession:
     try:
         async with database.session() as session:
             yield session
+            await session.commit()
 
     except SQLAlchemyError as error:
         logger.exception(error)

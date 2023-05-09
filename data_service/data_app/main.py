@@ -22,6 +22,7 @@ data_app.include_router(routers)
 async def startup() -> None:
     async with database.engine.begin() as conn:
         if get_settings().drop_tables:
+            log.info("Dropping tables...")
             await conn.run_sync(Base.metadata.drop_all)
 
         await conn.run_sync(Base.metadata.create_all)

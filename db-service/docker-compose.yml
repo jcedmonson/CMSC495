@@ -9,14 +9,11 @@ services:
     volumes:
       - data_volume:/var/lib/postgresql/data/  # Path is where the container stores sql data
     ports:
-      - 54320:54320
+      - "54320:54320"
     networks:
       - cmsc495_network
 
 volumes:
-  auth_volume:
-    external: true
-    name: auth_volume
 
   data_volume:
     external: true
