@@ -216,14 +216,9 @@ async def set_comment(session: AsyncSession,
         comment=post.content
     )
 
-    import ipdb;ipdb.set_trace()
-
-    post.comments.append(new_post)
-
-
-    import ipdb;ipdb.set_trace()
+    session.add(new_post)
     await session.commit()
-
+    await session.refresh(post)
 
 async def get_all_posts(session: AsyncSession, limit: int, offset: int):
     stmt = (
@@ -256,6 +251,8 @@ async def get_post(session: AsyncSession, post_id: int):
             detail="Post was not found"
         )
 
+    import ipdb; ipdb.set_trace()
+
     return set_post_model(post)
 
 async def get_posts(session: AsyncSession,
@@ -272,31 +269,6 @@ async def get_posts(session: AsyncSession,
     posts = (await session.execute(stmt)).all()
     return set_post_models(posts)
 
-    # stmt = select(UserProfile).where(
-    #     UserProfile.user_id == current_user.user_id).options(
-    #     selectinload(UserProfile.posts))
-    # result = await session.execute(stmt)
-    # user = result.scalar_one_or_none()
-    #
-    # if user is None or not user.posts:
-    #     return []
-    #
-    # posts = []
-    # user_model = p_model.User.from_orm(user)
-    # for post in user.posts:
-    #     post = p_model.UserPost(
-    #         user_id=user_model.user_id,
-    #         post_id=post.post_id,
-    #         post_date=post.post_date,
-    #         user_name=user_model.user_name,
-    #         first_name=user_model.first_name,
-    #         last_name=user_model.last_name,
-    #         content=post.content,
-    #     )
-    #     posts.append(post)
-    # return posts
-    #
-    #
 async def set_post(session: AsyncSession, current_user: p_model.UserAuthed,
                    post_body: str):
     post = UserPost(content=post_body,
