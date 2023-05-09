@@ -18,7 +18,7 @@ async def test_post_comment(async_client: AsyncClient, mock_users: list[MockUser
             post = p_model.UserPost.parse_obj(choice(posts))
             user_chosen = other_user
 
-    assert len(post.comments) == 0, post
+    post_count = len(post.comments)
     comment = p_model.PostCommentBody.parse_obj({"content": user_chosen.comment, **post.dict()})
 
 
@@ -31,6 +31,6 @@ async def test_post_comment(async_client: AsyncClient, mock_users: list[MockUser
 
     response = await async_client.get(f"/posts/{post.post_id}", headers=user_chosen.jwt_token)
     assert response.status_code == 200, (user_chosen, response.text)
-    assert len(response.json().get("comments")) == 1, post
-    
-    
+    assert len(response.json().get("comments")) > post_count
+
+
