@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     pgport: int = 5432
     host: str
 
-    drop_tables: bool = True
+    drop_tables: bool = False
     log_mode: str = "DEBUG"
 
     # JWT section
@@ -99,7 +99,7 @@ class Settings(BaseSettings):
 
                 "endpoint.auth": {
                     "handlers": ["default"],
-                    "level": "WARNING",
+                    "level": "DEBUG",
                     "propagate": True
                 },
 

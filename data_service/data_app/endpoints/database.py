@@ -47,6 +47,7 @@ async def get_session() -> AsyncSession:
     try:
         async with database.session() as session:
             yield session
+            await session.commit()
 
     except SQLAlchemyError as error:
         logger.exception(error)

@@ -27,9 +27,6 @@ services:
        - data_db
 
 volumes:
-  auth_volume:
-    external: true
-    name: auth_volume
 
   data_volume:
     external: true

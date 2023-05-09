@@ -69,7 +69,7 @@ class PostComment(Base):
     post_id: Mapped[int] = mapped_column(ForeignKey("user_post.post_id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.user_id"))
     comment_date: Mapped[datetime]
-    comment: Mapped[str] = mapped_column(String(1024))
+    content: Mapped[str] = mapped_column(String(1024))
 
     comment_list: Mapped[UserPost] = relationship(back_populates="comments")
 

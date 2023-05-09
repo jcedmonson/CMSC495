@@ -41,7 +41,7 @@ async def user_create(
 @auth_route.get("/user", summary="Validate users JWT token")
 async def user_jwt_get(
         current_user: jwt.CurrentUser_t) -> p_models.UserAuthed:
-    log.debug(f"Processing request from {current_user}")
+    log.debug(f"User {current_user.user_name} authorized")
     return current_user
 
 @auth_route.post("/token", response_model=p_models.Token,
