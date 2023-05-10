@@ -22,6 +22,7 @@ export const postStore = defineStore("posts", {
       post: "",
       selectedPost: {},
       comment: "",
+      loadingPosts: false,
     };
   },
   actions: {
@@ -59,8 +60,10 @@ export const postStore = defineStore("posts", {
      * @memberof store.posts
      */
     getPosts() {
+      this.loadingPosts = true;
       return axios.get(`${POSTS_SERVICE}/timeline/`).then((resp) => {
         this.currentPosts = resp.data;
+        setTimeout(() => {this.loadingPosts = false}, 3000)
         return resp;
       });
     },

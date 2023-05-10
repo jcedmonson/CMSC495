@@ -20,18 +20,19 @@
                   >{{posts.selectedPost.content}}</v-card-text
                 >
               </v-card>
-              <v-card rounded color="primary" class="mt-2" elevation="0">
+              <v-sheet color="" class="">
                 <v-textarea
                   rows="1"
-                  class="pl-4 pr-4 pt-1"
+                  class="pl-2 pr-2 pt-2"
                   auto-grow
-                  variant="underlined"
+                  variant="outlined"
                   :label="`Reply to @${posts.selectedPost.user_name}`"
                   v-model="posts.comment"
                 >
+                  
                 </v-textarea>
                 <v-btn variant="plain" @click="posts.postComment()">Send</v-btn>
-              </v-card>
+              </v-sheet>
             </v-card-text>
           </v-card>
         </div>

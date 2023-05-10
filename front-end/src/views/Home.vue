@@ -61,10 +61,10 @@ const user = userStore();
 const posts = postStore();
 const connections = connectionsStore();
 
-posts.getPosts();
 connections.getConnections();
 
 Promise.all([posts.getPosts(), connections.getConnections()]).then((resp) => {
+  setInterval(() => {return posts.getPosts().then((r) => {return r})}, 30000);
   loading.value = false;
 });
 </script>

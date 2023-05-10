@@ -6,6 +6,7 @@
         @click="app.drawer = !app.drawer"
       ></v-app-bar-nav-icon>
       <v-app-bar-title>CityPark</v-app-bar-title>
+      <v-progress-circular v-show="posts.loadingPosts" indeterminate class="mr-3"></v-progress-circular>
     </v-app-bar>
     <system-nav-drawer></system-nav-drawer>
     <default-view class="appBackground" />
@@ -18,7 +19,10 @@ import router from "@/router/index.js";
 import SystemMessage from "@/components/system/SystemMessage";
 import SystemNavDrawer from "@/components/system/SystemNavDrawer.vue";
 import { appStore } from "@/store/app";
+import { postStore } from "@/store/posts"
 const app = appStore();
+const posts = postStore();
+
 </script>
 <style>
 /* .appBackground{

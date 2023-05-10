@@ -6,7 +6,7 @@
         <v-card>
           <v-card-text class="ma-0 pa-0">
             <v-text-field label="Search For a Friend!" v-model="search" @update:modelValue="searchUser"></v-text-field>
-            <v-list class="mb-4">
+            <v-list class="mb-4" v-if="possibleConnections.length > 0">
               <v-list-item v-for="(u, idx) in possibleConnections" :key="idx">
                 <template v-slot:prepend>
                   <v-avatar variant="elevated" color="primary">{{
@@ -27,6 +27,9 @@
                 </template>
               </v-list-item>
             </v-list>
+            <v-row v-else class="mb-3">
+              <v-col class="text-center">Looks like there is no one for you to add...</v-col>
+            </v-row>
           </v-card-text>
         </v-card>
       </v-col>
