@@ -5,7 +5,7 @@ from typing import Any, Sequence
 
 from fastapi import HTTPException, status
 
-from sqlalchemy import Row, RowMapping, select, or_
+from sqlalchemy import Row, RowMapping, select, or_, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, joinedload
 
@@ -196,6 +196,37 @@ async def get_user_by_id(session: AsyncSession,
 
     log.debug(f"Fetched user {result}")
     return result
+
+async def remove_connection(session: AsyncSession,
+                            current_user: p_model.UserAuthed,
+                            user_id: int) -> None:
+    stmt = (
+        select(UserProfile)
+        .options(selectinload(UserProfile.connections))
+        .where(UserProfile.user_id == current_user.user_id)
+    )
+
+    result = (await session.scalars(stmt)).one_or_none()
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    if user_id not in (i.follows_user_id for i in result.connections):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Connection not found"
+        )
+
+    stmt = (
+        delete(UserConnection)
+        .where(and_(UserConnection.current_user_id == current_user.user_id), (UserConnection.follows_user_id == user_id))
+    )
+
+    await session.execute(stmt)
+    await session.commit()
 
 
 async def get_connections(session: AsyncSession,
@@ -428,3 +459,53 @@ async def authenticate_user(session, settings, username,
         return False
 
     return user
+
+async def remove_post(session: AsyncSession,
+                      current_user: p_model.UserAuthed,
+                      post: p_model.RemovePost) -> None:
+
+    try:
+        post = await get_post(session, post.post_id)
+    except:
+        raise
+
+    if post.user_id != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to remove this post"
+        )
+
+    stmt = (
+        delete(UserPost).where(UserPost.post_id == post.post_id)
+    )
+
+    await session.execute(stmt)
+    await session.commit()
+
+async def remove_comment(session: AsyncSession,
+                      current_user: p_model.UserAuthed,
+                      post: p_model.RemoveComment) -> None:
+
+    stmt = (
+        select(PostComment)
+        .where(and_(
+            PostComment.user_id == current_user.user_id),
+            PostComment.comment_id == post.comment_id
+        )
+    )
+
+    result = (await session.scalars(stmt)).one_or_none()
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Comment not found"
+        )
+
+    stmt = (
+        delete(PostComment).where(PostComment.comment_id == post.comment_id)
+    )
+    await session.execute(stmt)
+    await session.commit()
+
+

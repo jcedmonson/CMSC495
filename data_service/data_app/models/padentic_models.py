@@ -102,7 +102,14 @@ class UserPost(UserPostBody, User):
     comments: list[PostComment] = []
     reactions: list[ReactionResponse] = []
 
-
+class RemovePost(BaseModel):
+    post_id: int
+    
+class RemoveComment(BaseModel):
+    comment_id: int
+    
+class RemoveConnection(BaseModel):
+    connection_id: int
 
 
 

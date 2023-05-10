@@ -78,3 +78,40 @@ async def test_get_post_by_id(async_client: AsyncClient,
     response = await async_client.get("/posts/5", headers=user.jwt_token)
     assert response.status_code == 200, (user, response.text)
 
+
+async def test_post_removal(async_client: AsyncClient,
+                            mock_users: list[MockUser]) -> None:
+
+    user = choice(mock_users)
+
+    # Create a post
+    msg = user.gen_comment()
+    response = await async_client.post(f"/posts",
+                                       json={"content": msg},
+                                       headers=user.jwt_token)
+    assert response.status_code == 201, (user, response.text)
+
+    # Validate that a post was made
+    response = await async_client.get(f"/posts", headers=user.jwt_token)
+    assert response.status_code == 200, (user, response.text)
+    posts = response.json()
+
+    posted_msg = None
+    for post in posts:
+        if post.get("content") == msg:
+            posted_msg = post
+            break
+
+    assert posted_msg is not None
+
+    post_id = posted_msg.get("post_id")
+    assert isinstance(post_id, int)
+    response = await async_client.post(f"/posts/delete",
+                                      json={"post_id": post_id},
+                                      headers=user.jwt_token)
+    assert response.status_code == 201, (user, response.text)
+
+    # confirm that it was removed
+    response = await async_client.get(f"/posts/{posted_msg.get('post_id')}", headers=user.jwt_token)
+    assert response.status_code == 404, (user, response.text)
+
