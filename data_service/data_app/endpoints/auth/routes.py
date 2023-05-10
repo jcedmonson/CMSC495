@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Request
 
 from endpoints import crud
 import dependency_injection as inj
@@ -15,6 +15,7 @@ auth_route = APIRouter(prefix="/auth")
 @auth_route.post("/login", summary="Authenticate user")
 async def login(
         user: p_models.UserLogin,
+        request: Request,
         session: inj.Session_t,
         settings: inj.Settings_t) -> p_models.UserAuthed:
     """Authenticate a user by providing a username and password"""

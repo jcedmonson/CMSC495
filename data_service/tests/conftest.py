@@ -12,7 +12,7 @@ from endpoints import crud
 from models import padentic_models as p_model
 from models.base import Base
 
-PRODUCE_COUNT = 5
+PRODUCE_COUNT = 100
 FAKE = Faker()
 
 

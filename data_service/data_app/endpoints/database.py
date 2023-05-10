@@ -9,7 +9,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from app_settings import Settings
 
 logger = logging.getLogger("app.db")
-
 logging.getLogger("sqlalchemy").setLevel(logging.ERROR)
 
 

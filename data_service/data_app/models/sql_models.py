@@ -77,6 +77,7 @@ class PostComment(Base):
     comment_list: Mapped[UserPost] = relationship(back_populates="comments")
 
 
+
 class PostReaction(Base):
     __tablename__ = "post_reaction"
     post_id: Mapped[int] = mapped_column(ForeignKey("user_post.post_id"))

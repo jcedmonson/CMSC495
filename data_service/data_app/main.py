@@ -1,6 +1,6 @@
 import logging.config
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from endpoints.routers import routers
 from endpoints.database import database
@@ -13,7 +13,8 @@ log = logging.getLogger("app")
 
 data_app = FastAPI(
     title=get_settings().app_name,
-    version=get_settings().version
+    version=get_settings().version,
+    root_path="/api"
 )
 data_app.include_router(routers)
 
@@ -27,6 +28,7 @@ async def startup() -> None:
 
         await conn.run_sync(Base.metadata.create_all)
     log.info("Database Initialized...")
+
 
 if __name__ == "__main__":
     import uvicorn
