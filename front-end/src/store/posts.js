@@ -117,6 +117,11 @@ export const postStore = defineStore("posts", {
      * @function deletePost
      * @memberof store.posts
      */
-    deletePost(){}
+    deletePost(post_id){
+      return axios.post(`${POSTS_SERVICE}/delete`, {post_id: post_id}).then((resp) => {
+        this.getPosts();
+        return resp;
+      });
+    }
   },
 });

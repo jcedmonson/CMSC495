@@ -27,7 +27,7 @@
                     color="red"
                     v-else
                     variant="text"
-                    @click="connections.addConnection(u)"
+                    @click="connections.deleteConnection(u.user_id)"
                     ><v-icon icon="mdi-delete"></v-icon>Remove</v-btn
                   >
                 </template>
