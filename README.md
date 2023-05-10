@@ -3,7 +3,7 @@
 Team J³ decided to create a web application. The web application is internally named City Park. City Park will reflect a Twitter-like platform but lite in comparison. The application is configured with a docker compose file to strategically stand-up the application without the need of user interaction. The infrastructure is postured to be scaled with minimal refactoring for the likelihood where we need to spin up multiple data services to keep up with traffic demand.
 
 ## Development System Specifications
-![main](doc/infrastructure.png)
+![main](doc/infrastructure.jpg)
 
 ### Software:
 
