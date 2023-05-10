@@ -37,6 +37,11 @@ export const postStore = defineStore("posts", {
       });
     },
 
+    /**
+     * Posts a reaction to the backend.
+     * @function postComment
+     * @memberof store.posts
+     */
     postComment(){
       const user = userStore();
       if (this.comment.length > 0){
@@ -52,6 +57,25 @@ export const postStore = defineStore("posts", {
           return resp;
         });
       }
+    },
+
+    /**
+     * Posts a reaction to the backend.
+     * @function postReaction
+     * @memberof store.posts
+     */
+    postReaction(post_id,reaction){
+      const user = userStore();
+      return axios.post(`${POSTS_SERVICE}/${post_id}/reaction`, {
+        user_id: user.user_id,
+        user_name: user.user_name,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        reaction: reaction,
+      }).then((resp) => {
+        this.getPosts();
+        return resp;
+      });
     },
 
     /**
@@ -87,5 +111,12 @@ export const postStore = defineStore("posts", {
           });
       }
     },
+
+    /**
+     * Removes a post from the backend
+     * @function deletePost
+     * @memberof store.posts
+     */
+    deletePost(){}
   },
 });

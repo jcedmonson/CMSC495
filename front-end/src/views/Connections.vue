@@ -23,7 +23,13 @@
                     @click="connections.addConnection(u)"
                     ><v-icon icon="mdi-plus"></v-icon>Add</v-btn
                   >
-                  <v-icon v-else class="mr-5" icon="mdi-check" color="green"></v-icon>
+                  <v-btn
+                    color="red"
+                    v-else
+                    variant="text"
+                    @click="connections.addConnection(u)"
+                    ><v-icon icon="mdi-delete"></v-icon>Remove</v-btn
+                  >
                 </template>
               </v-list-item>
             </v-list>

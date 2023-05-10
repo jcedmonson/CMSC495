@@ -66,7 +66,7 @@ export const userStore = defineStore("user", {
 
     /**
      * Resets the store and logs the user out.
-     * @function login
+     * @function logout
      * @memberof store.user
      */
     logout() {

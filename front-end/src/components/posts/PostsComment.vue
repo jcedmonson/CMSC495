@@ -47,10 +47,10 @@
           :key="idx"
         >
           <v-card-title style="font-size: 0.9em; color: white">
-            @{{ comment.username }}
+            @{{ comment.user_name }}
           </v-card-title>
           <v-card-text style="color: white">
-            {{ comment.comment }}
+            {{ comment.content }}
           </v-card-text>
         </v-card>
         </div>

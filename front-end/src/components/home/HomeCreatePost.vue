@@ -1,5 +1,5 @@
 <template>
-  <v-card >
+  <v-card>
     <v-card-title class="font-weight-light pb-3 pt-3">
       <v-avatar size="35" variant="elevated" color="primary" class="mr-1">{{
         user.first_name[0] + user.last_name[0]

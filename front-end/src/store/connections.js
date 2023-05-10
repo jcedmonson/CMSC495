@@ -25,22 +25,6 @@ export const connectionsStore = defineStore("connections", {
     };
   },
   actions: {
-    /**
-     * Fetches a specific post
-     * @function viewPost
-     * @memberof store.posts
-     */
-    viewPost(id) {
-      const api = "http://192.168.131.2:5000";
-      return axios
-        .get(`${api}/posts/${id}`)
-        .then((resp) => {
-          this.selectedPost = resp.data;
-        })
-        .catch((err) => {
-          this.selectedPost = err;
-        });
-    },
 
     /**
      * Fetches all of the app's users.
@@ -87,5 +71,16 @@ export const connectionsStore = defineStore("connections", {
         this.connections.push(userObj)
       })
     },
+
+    /**
+     * Removes a connection for a specific user.
+     * @function addConnection
+     * @memberof store.connections
+     */
+    removeConnection(userObj){
+
+    }
+
+
   },
 });

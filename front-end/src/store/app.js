@@ -38,6 +38,11 @@ export const appStore = defineStore('app', {
       })
     },
 
+    /**
+     * Shows a snackbar with a message to the user.
+     * @function showMessage
+     * @memberof store.app
+     */
     showMessage(content){
       this.message.content = content;
       this.message.show = true;
