@@ -197,6 +197,37 @@ async def get_user_by_id(session: AsyncSession,
     log.debug(f"Fetched user {result}")
     return result
 
+async def remove_connection(session: AsyncSession,
+                            current_user: p_model.UserAuthed,
+                            user_id: int) -> None:
+    stmt = (
+        select(UserProfile)
+        .options(selectinload(UserProfile.connections))
+        .where(UserProfile.user_id == current_user.user_id)
+    )
+
+    result = (await session.scalars(stmt)).one_or_none()
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    if user_id not in (i.follows_user_id for i in result.connections):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Connection not found"
+        )
+
+    stmt = (
+        delete(UserConnection)
+        .where(and_(UserConnection.current_user_id == current_user.user_id), (UserConnection.follows_user_id == user_id))
+    )
+
+    await session.execute(stmt)
+    await session.commit()
+
 
 async def get_connections(session: AsyncSession,
                           user_id: int) -> list[p_model.User]:

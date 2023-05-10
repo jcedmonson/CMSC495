@@ -31,6 +31,12 @@ async def get_users_connections(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+@conn_routes.get("/delete/{user_id}", summary="Remove the connection to user_id", status_code=201)
+async def remove_connection(user_id: int,
+                             current_user: CurrentUser_t,
+                             session: inj.Session_t) -> None:
+
+    await crud.remove_connection(session, current_user, user_id)
 
 @conn_routes.post("/user", status_code=201)
 async def create_connection(
