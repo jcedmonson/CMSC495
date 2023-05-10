@@ -9,6 +9,11 @@ from pydantic import BaseModel, EmailStr
 from main import data_app, get_settings
 from endpoints.database import database
 from endpoints import crud
+from models import padentic_models as p_model
+from models.base import Base
+
+PRODUCE_COUNT = 5
+FAKE = Faker()
 
 
 class MockUser(BaseModel):
@@ -42,22 +47,20 @@ class MockUser(BaseModel):
             "last_name": self.last_name,
         }
 
-    @property
-    def comment(self) -> str:
-        fake = Faker()
-        return fake.text()[0:1000]
+    @staticmethod
+    def gen_comment() -> str:
+        return FAKE.text()[0:1000]
 
 
 def make_mock_user(count: int) -> list[MockUser]:
-    fake = Faker()
     users = []
     for i in range(0, count):
         users.append(MockUser(
-            user_name=fake.user_name(),
-            first_name=fake.first_name(),
-            last_name=fake.last_name(),
+            user_name=FAKE.user_name(),
+            first_name=FAKE.first_name(),
+            last_name=FAKE.last_name(),
             password="password",
-            email=fake.email()
+            email=FAKE.email()
         ))
     return users
 
@@ -81,16 +84,17 @@ def event_loop():
 async def async_client(event_loop) -> AsyncClient:
     async with AsyncClient(app=data_app,
                            base_url="http://127.0.0.1:8080") as client:
-    # async with AsyncClient(base_url="http://127.0.0.1:8080") as client:
+        # async with AsyncClient(base_url="http://127.0.0.1:8080") as client:
 
         await data_app.router.startup()
 
-        yield client
-
         # Drop tables during tear down
-        # if get_settings().drop_tables:
-        #     async with database.engine.begin() as conn:
-        #         await conn.run_sync(Base.metadata.drop_all)
+        if get_settings().drop_tables:
+            async with database.engine.begin() as conn:
+                await conn.run_sync(Base.metadata.drop_all)
+
+
+        yield client
 
         await data_app.router.shutdown()
 
@@ -121,24 +125,25 @@ async def default_user(async_client) -> MockUser:
     assert response.status_code == 200
     # Verify the token with the /user endpoint
     # save the jwt token into the object
-    user.jwt_token = {"Authorization": f"Bearer {response.json().get('token')}"}
+    user.jwt_token = {
+        "Authorization": f"Bearer {response.json().get('token')}"}
     user.user_id = response.json().get("user_id")
 
     yield user
 
 
 @pytest.fixture(scope="session")
-async def create_users(async_client: AsyncClient, default_user: MockUser) -> tuple[list[MockUser], bool]:
+async def create_users(async_client: AsyncClient, default_user: MockUser) -> \
+        tuple[list[MockUser], bool]:
     # Fetch all users to see if we need to generate them
     response = await async_client.get("/users", headers=default_user.jwt_token)
     assert response.status_code == 200, response.text
     users = response.json()
 
-    # import ipdb; ipdb.set_trace()
     new_users = False
-    if len(users) < 10:
+    if len(users) < PRODUCE_COUNT:
         new_users = True
-        create_count = 10 - len(users)
+        create_count = PRODUCE_COUNT - len(users)
         users = make_mock_user(create_count)
         for user in users:
             # Create the user
@@ -150,12 +155,16 @@ async def create_users(async_client: AsyncClient, default_user: MockUser) -> tup
 
     async with database.session() as session:
         users = await crud.get_all_users(session)
-        mock_users:list [MockUser] = [MockUser.parse_obj({"password": "password", **i.__dict__}) for i in users]
+        mock_users: list[MockUser] = [
+            MockUser.parse_obj({"password": "password", **i.__dict__}) for i in
+            users]
 
     yield mock_users, new_users
 
+
 @pytest.fixture(scope="session")
-async def populated_users(async_client, create_users) -> tuple[list[MockUser], bool]:
+async def populated_users(async_client, create_users) -> tuple[
+    list[MockUser], bool]:
     create_users, new_users = create_users
 
     for user in create_users:
@@ -180,8 +189,10 @@ async def populated_users(async_client, create_users) -> tuple[list[MockUser], b
 
     yield create_users, new_users
 
-async def populate_connections(async_client: AsyncClient, mock_users: list[MockUser]) -> None:
-    for _ in range(0, 10):
+
+async def populate_connections(async_client: AsyncClient,
+                               mock_users: list[MockUser]) -> None:
+    for _ in range(0, PRODUCE_COUNT):
         user = choice(mock_users)
         follow = choice(mock_users)
 
@@ -198,24 +209,50 @@ async def populate_connections(async_client: AsyncClient, mock_users: list[MockU
             assert response.status_code == 201, (user, follow, response.text)
 
 
-async def populate_posts(async_client: AsyncClient, mock_users: list[MockUser]) -> None:
-    for _ in range(0, 10):
+async def populate_posts(async_client: AsyncClient,
+                         mock_users: list[MockUser]) -> None:
+    for _ in range(0, PRODUCE_COUNT):
         user = choice(mock_users)
 
         response = await async_client.post(
             "/posts",
-            json={"content": user.comment},
+            json={"content": user.gen_comment()},
             headers=user.jwt_token
         )
 
         assert response.status_code == 201, (user, response.text)
 
 
-@pytest.fixture(scope="session")
-async def populate_comments(async_client, user):
-    response = await async_client.get("/posts/timeline/?limit=100", headers=user.jwt_token)
-    assert response.status_code == 200, (user, response.text)
-    posts = response.json()
+async def populate_comments(async_client: AsyncClient,
+                            mock_users: list[MockUser]) -> None:
+    for _ in range(0, PRODUCE_COUNT):
+        post, user = await get_random_post(async_client, mock_users)
+
+        comment = p_model.PostCommentBody.parse_obj(
+            {**post.dict(), "content": user.gen_comment()})
+
+        response = await async_client.post(
+            f"/posts/{post.post_id}/comment",
+            json=comment.dict(),
+            headers=user.jwt_token
+        )
+        assert response.status_code == 201, (response.text, post, user)
+
+
+async def populate_reactions(async_client: AsyncClient,
+                             mock_users: list[MockUser]) -> None:
+    for _ in range(0, PRODUCE_COUNT):
+        post, user = await get_random_post(async_client, mock_users)
+
+        reaction = p_model.PostReaction.parse_obj({"reaction": 3, **user.dict()})
+
+        response = await async_client.post(
+            f"/posts/{post.post_id}/reaction",
+            json=reaction.dict(),
+            headers=user.jwt_token)
+
+        assert response.status_code == 201, (user, response.text)
+
 
 @pytest.fixture(scope="module")
 async def mock_users(async_client, populated_users) -> list[MockUser]:
@@ -224,6 +261,27 @@ async def mock_users(async_client, populated_users) -> list[MockUser]:
     if new_users:
         await populate_connections(async_client, mock_users)
         await populate_posts(async_client, mock_users)
-        # await populate_comments(async_client, mock_users)
+        await populate_comments(async_client, mock_users)
+        await populate_reactions(async_client, mock_users)
 
     yield mock_users
+
+
+async def get_random_post(async_client: AsyncClient,
+                          mock_users: list[MockUser]) -> tuple[
+    p_model.UserPost, MockUser]:
+    post: p_model.UserPost | None = None
+    user_chosen: MockUser | None = None
+
+    while post is None:
+        other_user = choice(mock_users)
+        response = await async_client.get("/posts",
+                                          headers=other_user.jwt_token)
+        assert response.status_code == 200, (other_user, response.text)
+        posts = response.json()
+
+        if posts:
+            post = p_model.UserPost.parse_obj(choice(posts))
+            user_chosen = other_user
+
+    return post, user_chosen

@@ -1,3 +1,4 @@
+from operator import itemgetter
 from datetime import datetime, timedelta
 import logging
 from typing import Any, Sequence
@@ -6,11 +7,11 @@ from fastapi import HTTPException, status
 
 from sqlalchemy import Row, RowMapping, select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 import dependency_injection as inj
 from models.sql_models import UserProfile, UserConnection, UserPost, \
-    PostComment
+    PostComment, PostReaction
 from models import padentic_models as p_model
 from endpoints.auth import jwt_token_handler as jwt
 
@@ -19,6 +20,7 @@ log = logging.getLogger("crud")
 
 def set_post_model(post: Row[UserPost, UserProfile]) -> p_model.UserPost:
     post, user = post
+
     return p_model.UserPost(
         user_id=user.user_id,
         user_name=user.user_name,
@@ -145,6 +147,7 @@ async def get_all_users(session: AsyncSession) -> Sequence[
 
     return result
 
+
 async def get_comment(session: AsyncSession,
                       post_id: int,
                       comment_id: int) -> p_model.PostComment:
@@ -173,9 +176,6 @@ async def get_comment(session: AsyncSession,
         )
 
     return p_model.PostComment.from_orm(result)
-
-
-
 
 
 async def get_user_by_id(session: AsyncSession,
@@ -227,14 +227,13 @@ async def get_connections(session: AsyncSession,
     )
 
     result = await session.scalars(stmt)
-    connections = [p_model.User.from_orm(user_profile) for user_profile in result]
+    connections = [p_model.User.from_orm(user_profile) for user_profile in
+                   result]
     return connections
 
 
-async def set_comment(session: AsyncSession,
-                      current_user: p_model.UserAuthed,
-                      post_obj: p_model.PostCommentBody,
-                      post_id: int):
+async def _get_post(session: AsyncSession,
+                    post_id: int) -> p_model.UserPost:
     stmt = (
         select(UserPost)
         .options(selectinload(UserPost.comments),
@@ -251,16 +250,62 @@ async def set_comment(session: AsyncSession,
             detail=f"Post ID {post_id} was not found"
         )
 
+    return post
+
+
+async def set_comment(session: AsyncSession,
+                      current_user: p_model.UserAuthed,
+                      post_obj: p_model.PostCommentBody,
+                      post_id: int):
+    try:
+        post = await _get_post(session, post_id)
+    except:
+        raise
+
     new_post = PostComment(
         post_id=post.post_id,
         user_id=current_user.user_id,
+        user_name=current_user.user_name,
         comment_date=datetime.utcnow(),
-        content=post.content
+        content=post_obj.content
     )
 
     session.add(new_post)
     await session.commit()
-    await session.refresh(post)
+
+
+async def set_reaction(session: AsyncSession,
+                       current_user: p_model.UserAuthed,
+                       reaction_obj: p_model.PostReaction,
+                       post_id: int) -> None:
+    try:
+        post = await _get_post(session, post_id)
+    except:
+        raise
+
+    new_reaction = PostReaction(
+        post_id=post.post_id,
+        user_id=current_user.user_id,
+        reaction_date=datetime.utcnow(),
+        user_name=current_user.user_name,
+        reaction_id=reaction_obj.reaction
+    )
+
+    result = list(
+        filter(itemgetter(1),
+               enumerate(
+                   map(
+                       lambda x: x.user_id == new_reaction.user_id,
+                       post.reactions
+                   ))))
+
+    if result:
+        index = result[0][0]
+        post.reactions[index] = new_reaction
+    else:
+        session.add(new_reaction)
+
+    await session.commit()
 
 
 async def get_all_posts(session: AsyncSession,
@@ -298,6 +343,7 @@ async def get_post(session: AsyncSession, post_id: int) -> p_model.UserPost:
     )
 
     post = (await session.execute(stmt)).one_or_none()
+
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -310,14 +356,13 @@ async def get_post(session: AsyncSession, post_id: int) -> p_model.UserPost:
 async def get_posts(session: AsyncSession,
                     current_user: p_model.UserAuthed
                     ) -> list[p_model.UserPost]:
-    
     stmt = (
         select(UserPost, UserProfile)
         .join(UserProfile)
-        .where(UserPost.user_id == current_user.user_id)
         .options(selectinload(UserPost.comments),
                  selectinload(UserPost.reactions))
         .order_by(UserPost.post_date.desc())
+        .where(UserPost.user_id == current_user.user_id)
     )
 
     posts = (await session.execute(stmt)).all()
