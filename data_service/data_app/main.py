@@ -1,6 +1,6 @@
 import logging.config
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from endpoints.routers import routers
 from endpoints.database import database
@@ -13,7 +13,8 @@ log = logging.getLogger("app")
 
 data_app = FastAPI(
     title=get_settings().app_name,
-    version=get_settings().version
+    version=get_settings().version,
+    root_path="/api"
 )
 data_app.include_router(routers)
 
@@ -22,16 +23,11 @@ data_app.include_router(routers)
 async def startup() -> None:
     async with database.engine.begin() as conn:
         if get_settings().drop_tables:
+            log.info("Dropping tables...")
             await conn.run_sync(Base.metadata.drop_all)
 
         await conn.run_sync(Base.metadata.create_all)
     log.info("Database Initialized...")
-
-
-@data_app.post("/sync_user")
-async def sync_new_user() -> None:
-    return None
-
 
 
 if __name__ == "__main__":

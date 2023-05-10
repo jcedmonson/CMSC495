@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Request
 
 from endpoints import crud
 import dependency_injection as inj
@@ -15,6 +15,7 @@ auth_route = APIRouter(prefix="/auth")
 @auth_route.post("/login", summary="Authenticate user")
 async def login(
         user: p_models.UserLogin,
+        request: Request,
         session: inj.Session_t,
         settings: inj.Settings_t) -> p_models.UserAuthed:
     """Authenticate a user by providing a username and password"""
@@ -25,7 +26,6 @@ async def login(
         raise
 
     return result
-
 
 @auth_route.post("/user", status_code=201, summary="Create a new user")
 async def user_create(
@@ -42,28 +42,8 @@ async def user_create(
 @auth_route.get("/user", summary="Validate users JWT token")
 async def user_jwt_get(
         current_user: jwt.CurrentUser_t) -> p_models.UserAuthed:
-    log.debug(f"Processing request from {current_user}")
+    log.debug(f"User {current_user.user_name} authorized")
     return current_user
-
-
-# @auth_route.get("/get_users", summary="Fetch all users")
-# async def get_all_users(
-#         current_user: Annotated[UserAuthed, Depends(jwt.get_current_user)],
-#         session: inj.Session_t,
-# ) -> list[UserAcc]:
-#     # current_user is to ensure that the user is a valid user
-#     return await crud.get_all_users(session)
-#
-# @auth_route.get("/get_user/{user_name}", summary="Fetch user if user exists")
-# async def get_all_users(
-#         user_name: str,
-#         current_user: Annotated[UserAuthed, Depends(jwt.get_current_user)],
-#         session: inj.Session_t,
-# ) -> UserAcc:
-#     # current_user is to ensure that the user is a valid user
-#     return await crud.get_user(session, user_name)
-#
-
 
 @auth_route.post("/token", response_model=p_models.Token,
                  summary="OAuth2 Endpoint")

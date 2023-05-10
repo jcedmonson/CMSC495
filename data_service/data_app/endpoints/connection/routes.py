@@ -17,11 +17,10 @@ async def get_users_connections(
         _: CurrentUser_t,
         session: inj.Session_t) -> list[p_model.User] | None:
 
-    log.debug(f"Querying for user {user_id}")
-
     try:
-        a = await crud.get_connections(session, user_id)
-        return a
+        results = await crud.get_connections(session, user_id)
+        log.info(f"User ID {user_id} has {len(results)}")
+        return results
     except:
 
         log.error(f"User {user_id} was not found")
@@ -32,6 +31,12 @@ async def get_users_connections(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+@conn_routes.get("/delete/{user_id}", summary="Remove the connection to user_id", status_code=201)
+async def remove_connection(user_id: int,
+                             current_user: CurrentUser_t,
+                             session: inj.Session_t) -> None:
+
+    await crud.remove_connection(session, current_user, user_id)
 
 @conn_routes.post("/user", status_code=201)
 async def create_connection(

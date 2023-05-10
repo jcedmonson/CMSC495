@@ -6,6 +6,9 @@
 
 import axios from "axios";
 import { defineStore } from "pinia";
+import { userStore } from "@/store/user";
+
+const POSTS_SERVICE = import.meta.env.VITE_POSTS_SERVICE;
 
 /**
  * Post Store
@@ -18,22 +21,61 @@ export const postStore = defineStore("posts", {
       currentPosts: [],
       post: "",
       selectedPost: {},
-    }
+      comment: "",
+      loadingPosts: false,
+    };
   },
   actions: {
-
     /**
-     * Fetches a specific post 
+     * Fetches a specific post
      * @function viewPost
      * @memberof store.posts
      */
-    viewPost(id){
-      const api = "http://192.168.131.2:5000"
-      return axios.get(`${api}/posts/${id}`).then((resp) => {
+    viewPost(id) {
+      return axios.get(`${POSTS_SERVICE}/${id}`).then((resp) => {
         this.selectedPost = resp.data;
-      }).catch((err) => {
-        this.selectedPost = err;
-      })
+      });
+    },
+
+    /**
+     * Posts a reaction to the backend.
+     * @function postComment
+     * @memberof store.posts
+     */
+    postComment(){
+      const user = userStore();
+      if (this.comment.length > 0){
+        return axios.post(`${POSTS_SERVICE}/${this.selectedPost.post_id}/comment`, {
+          user_id: user.user_id,
+          user_name: user.user_name,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          content: this.comment
+        }).then((resp) => {
+          this.viewPost(this.selectedPost.post_id)
+          this.comment = "";
+          return resp;
+        });
+      }
+    },
+
+    /**
+     * Posts a reaction to the backend.
+     * @function postReaction
+     * @memberof store.posts
+     */
+    postReaction(post_id,reaction){
+      const user = userStore();
+      return axios.post(`${POSTS_SERVICE}/${post_id}/reaction`, {
+        user_id: user.user_id,
+        user_name: user.user_name,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        reaction: reaction,
+      }).then((resp) => {
+        this.getPosts();
+        return resp;
+      });
     },
 
     /**
@@ -41,11 +83,13 @@ export const postStore = defineStore("posts", {
      * @function getPosts
      * @memberof store.posts
      */
-    getPosts(){
-      const api = "http://192.168.131.2:5000"
-      axios.get(`${api}/posts`).then((resp) => {
+    getPosts() {
+      this.loadingPosts = true;
+      return axios.get(`${POSTS_SERVICE}/timeline/`).then((resp) => {
         this.currentPosts = resp.data;
-      })
+        setTimeout(() => {this.loadingPosts = false}, 3000)
+        return resp;
+      });
     },
 
     /**
@@ -54,14 +98,30 @@ export const postStore = defineStore("posts", {
      * @param {number|string} post
      * @memberof store.posts
      */
-    submitPost(post){
-      const api = "http://192.168.131.2:5000"
-      axios.post(`${api}/posts`, post).then((resp) => {
-        this.post = "";
-        this.currentPosts.unshift(resp.data)
-      }).catch((err) => {
-        // notify user
-      })
+    submitPost() {
+      if (this.post.length > 0) {
+        axios
+          .post(`${POSTS_SERVICE}`, { content: this.post })
+          .then((resp) => {
+            this.post = "";
+            this.getPosts();
+          })
+          .catch((err) => {
+            // notify user
+          });
+      }
+    },
+
+    /**
+     * Removes a post from the backend
+     * @function deletePost
+     * @memberof store.posts
+     */
+    deletePost(post_id){
+      return axios.post(`${POSTS_SERVICE}/delete`, {post_id: post_id}).then((resp) => {
+        this.getPosts();
+        return resp;
+      });
     }
-  }
-})
+  },
+});

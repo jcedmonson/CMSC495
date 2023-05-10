@@ -26,11 +26,14 @@ export const userStore = defineStore("user", {
       user_id: "",
       user_name: "",
       password: "",
+      confirmPassword: "",
       first_name: "",
       last_name: "",
       email: "",
       connections: [],
       token: "",
+      loginFormValid: false,
+      newUserFormValid: false,
       loggedIn: false,
     };
   },
@@ -42,14 +45,34 @@ export const userStore = defineStore("user", {
      * @memberof store.user
      */
     login() {
-      loginRequest({ user_name: this.user_name, password: this.password })
-        .then((resp) => {
-          this.loggedIn = true;
-          router.push("/");
-        })
-        .catch((e) => {
-          router.push("/login");
-        });
+      if (this.loginFormValid) {
+        const app = appStore();
+
+        loginRequest({ user_name: this.user_name, password: this.password })
+          .then((resp) => {
+            this.loggedIn = true;
+            router.push("/");
+          })
+          .catch((e) => {
+            router.push("/login");
+            switch (e.response.status) {
+              case 401:
+                this.reset();
+                app.showMessage("Incorrect Username Or Password.");
+            }
+          });
+      }
+    },
+
+    /**
+     * Resets the store and logs the user out.
+     * @function logout
+     * @memberof store.user
+     */
+    logout() {
+      sessionStorage.clear()
+      this.reset();
+      router.push("/login");
     },
 
     /**
@@ -69,6 +92,8 @@ export const userStore = defineStore("user", {
       this.connections = [];
       this.token = "";
       this.loggedIn = false;
+      this.loginFormValid = false;
+      this.newUserFormValid = false;
     },
 
     /**
@@ -81,26 +106,28 @@ export const userStore = defineStore("user", {
 
       this.loading = true;
 
-      const newUserObj = {
-        user_name: this.user_name,
-        first_name: this.first_name,
-        last_name: this.last_name,
-        email: this.email,
-        password: this.password,
-      };
+      if (this.newUserFormValid) {
+        const newUserObj = {
+          user_name: this.user_name,
+          first_name: this.first_name,
+          last_name: this.last_name,
+          email: this.email,
+          password: this.password,
+        };
 
-      return axios
-        .post(`${AUTH_SERVICE}/user`, newUserObj)
-        .then((resp) => {
-          const message = "Account Created, Please Log In.";
-          this.reset();
-          app.showMessage(message);
-        })
-        .catch((err) => {
-          // notify user
-          this.reset();
-          app.showMessage(err);
-        });
+        return axios
+          .post(`${AUTH_SERVICE}/user`, newUserObj)
+          .then((resp) => {
+            const message = "Account Created, Please Log In.";
+            this.reset();
+            app.showMessage(message);
+          })
+          .catch((err) => {
+            // notify user
+            this.reset();
+            app.showMessage(err);
+          });
+      }
     },
 
     /**

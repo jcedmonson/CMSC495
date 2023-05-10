@@ -1,80 +1,93 @@
 <template>
-  <v-card>
-    <v-card-title class="font-weight-light"> {{ title }}</v-card-title>
-    <v-card-text>
-      {{ content }}
-    </v-card-text>
-
-    <!-- <div v-if="showComments">
-      <v-sheet variant="outlined" class="ma-2 commentCard" border rounded >
-          <v-card
-            class="pa-0 ma-2"
-            variant="tonal"
-            density="compact"
-            v-for="(comment, idx) in comments"
-            :key="idx"
-          >
-            <v-card-title style="font-size: 1em" class="font-weight-light">
-              @{{ comment.username }}</v-card-title
-            >
-            <v-card-text>{{ comment.comment }}</v-card-text>
-          </v-card>
-      </v-sheet>
-      <div v-if="makeComment">
-      <v-textarea
-        autofocus
-        rows="2"
-        class="pl-4 pr-4 pt-2"
-        density="compact"
-        variant="outlined"
-        label="Comment"
-        v-model="commentText"
+  <v-card :color="props.post.user_id == user.user_id ? 'indigo': 'indigo-lighten-2'" variant="tonal">
+    <v-card-title class="pb-3 pt-3" style="color: white; font-size: 0.9em">
+      <v-avatar
+        size="35"
+        variant="elevated"
+        color="primary"
+        class="mb-0 mr-1"
+        >{{ props.post.first_name[0] + props.post.last_name[0] }}</v-avatar
       >
-      </v-textarea>
-      <div class="pl-2 pr-2 pb-2">
-        <v-btn size="small" variant="plain" @click="() => {
-          makeComment = false;
-          commentText = '';
-        }">Cancel</v-btn>
-        <v-btn size="small" variant="plain">Send</v-btn>
-      </div>
-      </div>
-    </div> -->
 
+      @{{ props.post.user_name }}</v-card-title
+    >
+    <v-card-subtitle style="color: white">{{
+      props.post.post_date
+    }}</v-card-subtitle>
+    <v-card-text style="color: white">
+      {{ props.post.content }}
+    </v-card-text>
     <v-card-actions>
-      <v-btn size="small" icon="mdi-thumb-up"></v-btn>
-      <v-btn size="small" icon="mdi-thumb-down"></v-btn>
-        <!-- <v-btn
-          v-if="showComments"
-        
-          @click="showComments = false"
-     
-        ><v-icon>mdi-comment-off</v-icon>({{ comments.length }})</v-btn>
-        <v-btn
-          v-if="!makeComment && showComments"
-          size="small"
-          @click="makeComment = true"
-          icon="mdi-comment-text"
-        ></v-btn> -->
       <v-btn
-        @click="()=>{
-          router.push(`/posts/${id}`)
-        }"
-      ><v-icon>mdi-comment</v-icon>(6)</v-btn>
+        size="small"
+        color="white"
+        @click="posts.postReaction(props.post.post_id, 1)"
+        ><v-icon icon="mdi-thumb-up" class="mr-1"></v-icon>
+        <div v-if="reactions.likes > 0">{{ reactions.likes }}</div></v-btn
+      >
+      <v-btn
+        size="small"
+        color="white"
+        @click="posts.postReaction(props.post.post_id, 2)"
+        ><v-icon icon="mdi-thumb-down" class="mr-1"></v-icon>
+        <div v-if="reactions.dislikes > 0">{{ reactions.dislikes }}</div></v-btn
+      >
+      <v-btn
+        color="white"
+        @click="
+          () => {
+            posts
+              .viewPost(props.post.post_id)
+              .then(() => {
+                router.push(`/posts/${props.post.post_id}`);
+              })
+              .catch((err) => {
+                app.showMessage(err);
+              });
+          }
+        "
+        ><v-icon class="mr-1">mdi-comment</v-icon>
+        <div v-if="props.post.comments.length > 0">
+          {{ props.post.comments.length }}
+        </div></v-btn
+      >
+      <v-spacer></v-spacer>
+      <v-btn color="white" v-if="props.post.user_id == user.user_id" @click="posts.deletePost(props.post.post_id)"><v-icon icon="mdi-delete"></v-icon></v-btn>
     </v-card-actions>
   </v-card>
 </template>
 <script setup>
-import { ref } from "vue";
-import router from "@/router/index.js"
+import { computed, ref } from "vue";
+import router from "@/router/index.js";
+import { postStore } from "@/store/posts";
+import { appStore } from "@/store/app.js";
+import { userStore } from "@/store/user.js"
 
-const props = defineProps(["title", "content", "id"]);
+const posts = postStore();
+const app = appStore();
+const user = userStore();
+
+const props = defineProps(["post"]);
+
+const reactions = computed(() => {
+  let likes = 0;
+  let dislikes = 0;
+  props.post.reactions.forEach((r) => {
+    switch (r.reaction_id) {
+      case 1:
+        likes = likes + 1;
+        break;
+      case 2:
+        dislikes = dislikes + 1;
+        break;
+    }
+  });
+  return { likes: likes, dislikes: dislikes };
+});
 
 // let showComments = ref(false);
 // let makeComment = ref(false);
 // let commentText = "";
-
-
 </script>
 <style>
 .commentCard {

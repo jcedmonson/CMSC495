@@ -9,7 +9,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from app_settings import Settings
 
 logger = logging.getLogger("app.db")
-
 logging.getLogger("sqlalchemy").setLevel(logging.ERROR)
 
 
@@ -47,6 +46,7 @@ async def get_session() -> AsyncSession:
     try:
         async with database.session() as session:
             yield session
+            await session.commit()
 
     except SQLAlchemyError as error:
         logger.exception(error)

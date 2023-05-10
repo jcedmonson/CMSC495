@@ -1,16 +1,12 @@
 <template>
   <v-container class="full-height" fluid>
-    <v-row class="full-height">
-      <v-col></v-col>
-      <v-col md="6" lg="4">
+    <v-row>
+      <v-col class="d-none d-md-block"> </v-col>
+      <v-col xs="12" sm="12" md="6" lg="6" xl="4">
         <posts-comment
-         
-          :title="posts.selectedPost.username"
-          :content="posts.selectedPost.content"
-          :id="posts.selectedPost.postId"
         ></posts-comment>
       </v-col>
-      <v-col></v-col>
+      <v-col class="d-none d-md-block"></v-col>
     </v-row>
   </v-container>
 </template>
@@ -21,7 +17,7 @@ import router from "@/router/index.js";
 import PostsComment from "@/components/posts/PostsComment.vue";
 
 const posts = postStore();
-posts.viewPost(router.currentRoute.value.params.id);
+
 </script>
 
 <style scoped></style>

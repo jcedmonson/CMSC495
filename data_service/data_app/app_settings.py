@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     pgport: int = 5432
     host: str
 
-    drop_tables: bool = True
+    drop_tables: bool = False
     log_mode: str = "DEBUG"
 
     # JWT section
@@ -35,6 +35,22 @@ class Settings(BaseSettings):
 
     pwd_context: CryptContext = CryptContext(schemes=["bcrypt"],
                                              deprecated=["auto"])
+
+    @property
+    def post_limit_size(self) -> int:
+        return 2048
+
+    @property
+    def comment_limit_size(self) -> int:
+        return 1024
+
+    @property
+    def post_min_size(self) -> int:
+        return 1
+
+    @property
+    def comment_min_size(self) -> int:
+        return 1
 
     @property
     def dns(self) -> str:
@@ -83,11 +99,17 @@ class Settings(BaseSettings):
 
                 "endpoint.auth": {
                     "handlers": ["default"],
-                    "level": "WARNING",
+                    "level": "DEBUG",
                     "propagate": True
                 },
 
                 "endpoint.connection": {
+                    "handlers": ["default"],
+                    "level": "INFO",
+                    "propagate": True
+                },
+
+                "endpoint.posts": {
                     "handlers": ["default"],
                     "level": "DEBUG",
                     "propagate": True
@@ -95,7 +117,7 @@ class Settings(BaseSettings):
 
                 "crud": {
                     "handlers": ["default"],
-                    "level": "DEBUG",
+                    "level": "INFO",
                     "propagate": True
                 },
 
