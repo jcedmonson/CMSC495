@@ -55,5 +55,45 @@ async def test_fetch_missing_comment(async_client: AsyncClient,
                                       headers=user.jwt_token)
     assert response.status_code == 404, (user, response.text)
 
+async def test_comment_removal(async_client: AsyncClient,
+                               mock_users: list[MockUser]) -> None:
+
+    post, user = await get_random_post(async_client, mock_users)
+    msg = user.gen_comment()
+
+    comment = p_model.PostCommentBody.parse_obj(
+        {**post.dict(), "content": msg})
+
+    response = await async_client.post(
+        f"/posts/{post.post_id}/comment",
+        json=comment.dict(),
+        headers=user.jwt_token
+    )
+    assert response.status_code == 201, (response.text, post, user)
+
+    # Fetch the comment
+    response = await async_client.get(f"/posts/{post.post_id}", headers=user.jwt_token)
+    assert response.status_code == 200, (user, response.text)
+    comments = response.json().get("comments")
+
+    assert comments is not None
+
+    posted_comment = None
+    for comment in comments:
+        if comment.get("content") == msg:
+            posted_comment = comment
+            break
+
+    assert posted_comment is not None
+
+    # delete the post
+    comment_id = {"comment_id": posted_comment.get("comment_id")}
+    assert comment_id is not None
+    response = await async_client.post(f"/posts/delete/comment",
+                                       json=comment,
+                                       headers=user.jwt_token)
+    assert response.status_code == 201, (user, response.text)
+
+
 
 

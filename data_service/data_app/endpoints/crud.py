@@ -5,7 +5,7 @@ from typing import Any, Sequence
 
 from fastapi import HTTPException, status
 
-from sqlalchemy import Row, RowMapping, select, or_
+from sqlalchemy import Row, RowMapping, select, or_, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, joinedload
 
@@ -428,3 +428,53 @@ async def authenticate_user(session, settings, username,
         return False
 
     return user
+
+async def remove_post(session: AsyncSession,
+                      current_user: p_model.UserAuthed,
+                      post: p_model.RemovePost) -> None:
+
+    try:
+        post = await get_post(session, post.post_id)
+    except:
+        raise
+
+    if post.user_id != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to remove this post"
+        )
+
+    stmt = (
+        delete(UserPost).where(UserPost.post_id == post.post_id)
+    )
+
+    await session.execute(stmt)
+    await session.commit()
+
+async def remove_comment(session: AsyncSession,
+                      current_user: p_model.UserAuthed,
+                      post: p_model.RemoveComment) -> None:
+
+    stmt = (
+        select(PostComment)
+        .where(and_(
+            PostComment.user_id == current_user.user_id),
+            PostComment.comment_id == post.comment_id
+        )
+    )
+
+    result = (await session.scalars(stmt)).one_or_none()
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Comment not found"
+        )
+
+    stmt = (
+        delete(PostComment).where(PostComment.comment_id == post.comment_id)
+    )
+    await session.execute(stmt)
+    await session.commit()
+
+
