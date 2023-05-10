@@ -52,7 +52,7 @@
         </div></v-btn
       >
       <v-spacer></v-spacer>
-      <v-btn color="white" v-if="props.post.user_id == user.user_id"><v-icon icon="mdi-delete"></v-icon></v-btn>
+      <v-btn color="white" v-if="props.post.user_id == user.user_id" @click="posts.deletePost(props.post.post_id)"><v-icon icon="mdi-delete"></v-icon></v-btn>
     </v-card-actions>
   </v-card>
 </template>

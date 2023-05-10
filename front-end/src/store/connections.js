@@ -74,13 +74,14 @@ export const connectionsStore = defineStore("connections", {
 
     /**
      * Removes a connection for a specific user.
-     * @function addConnection
+     * @function removeConnection
      * @memberof store.connections
      */
-    removeConnection(userObj){
-
+    deleteConnection(user_id){
+      return axios.get(`${CONNECTIONS_SERVICE}/delete/${user_id}`).then((resp) => {
+        this.getConnections();
+        return resp;
+      });
     }
-
-
   },
 });
